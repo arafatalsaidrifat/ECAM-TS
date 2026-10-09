@@ -77,7 +77,7 @@ export function runForecastStudy(values: number[], horizon: number, period: numb
   const minimumTrain = Math.max(8, period > 1 ? period : 8);
   const minimumRows = minimumTrain + horizon * 3;
   if (values.length < minimumRows) {
-    throw new Error(`Not enough observations for this setup. Need at least ${minimumRows} valid rows for a ${horizon}-step horizon, seasonal period ${period}, two non-overlapping validation folds and a separate final holdout; currently have ${values.length}. Reduce the horizon/seasonal period or load more observations.`);
+    throw new Error(`Not enough data for this setup. Need at least ${minimumRows} valid rows for a ${horizon}-step horizon, seasonal period ${period}, two non-overlapping validation folds and a separate final holdout; currently have ${values.length}. Reduce the horizon/seasonal period or load more observations.`);
   }
   const development = values.slice(0, developmentSize);
   const holdoutActual = values.slice(developmentSize);
