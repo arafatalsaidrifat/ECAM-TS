@@ -1,0 +1,6 @@
+{
+  "name": "ECAM-TS Research Workbench",
+  "description": "Interactive faculty defense and empirical evaluation workbench for Event- and Context-Aware Multi-Domain Time-Series Forecasting (ECAM-TS).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
