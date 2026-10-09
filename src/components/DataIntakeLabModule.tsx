@@ -260,6 +260,7 @@ export const DataIntakeLabModule: React.FC = () => {
   const breakX = historyPlot.length > 1 ? ((historyPlot.length - 1) / Math.max(1, chartValues.length - 1)) * chartW : chartW;
   const historyPath = linePath(historyPlot, chartW, chartH, chartMin, chartMax, 0, breakX);
   const forecastPath = result ? linePath([historyPlot[historyPlot.length - 1] ?? 0, ...previewForecast], chartW, chartH, chartMin, chartMax, breakX, chartW) : '';
+  const requiredRows = Math.max(8, period > 1 ? period : 8) + horizon * 3;
 
   return (
     <div className="space-y-5">
@@ -336,10 +337,10 @@ export const DataIntakeLabModule: React.FC = () => {
                 <option value="1">1 — no seasonality</option><option value="7">7 — weekly daily cycle</option><option value="12">12 — annual monthly cycle</option><option value="24">24 — daily hourly cycle</option><option value="168">168 — weekly hourly cycle</option>
               </select>
             </label>
-            <button onClick={runExperiment} disabled={running || observations.length < 16 || (timestamp !== '' && (audit.duplicateTimestamps > 0 || audit.timestampParseFailures > 0))} className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-45">
+            <button onClick={runExperiment} disabled={running} className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-45">
               {running ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Activity className="h-4 w-4" />} {running ? 'Running validation…' : 'Run rolling-origin baseline comparison'}
             </button>
-            <p className="mt-2 text-[10px] leading-4 text-slate-500">Five transparent baseline/combination strategies. No foundation model is called by this button. Requires two or more non-overlapping chronological validation folds.</p>
+            <p className="mt-2 text-[10px] leading-4 text-slate-500">Five transparent baseline/combination strategies; no foundation model is called. Requires two non-overlapping chronological validation folds plus a separate final holdout.</p><p className="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] leading-5 text-slate-600">Current settings require <strong>{requiredRows.toLocaleString()} valid observations</strong> (horizon {horizon}, seasonal period {period}). Found <strong>{observations.length.toLocaleString()}</strong>. The button remains available to explain validation errors; choose a numeric target and load enough actual time-series rows before expecting results.</p>
           </section>}
         </div>
 
