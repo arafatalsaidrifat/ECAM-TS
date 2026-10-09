@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import {
-  ArrowDownRight, ArrowRight, BookOpen, CheckCircle2, Circle, Database,
-  FileText, GitBranch, ShieldCheck, Sparkles, Target, Workflow,
+  ArrowDownRight, ArrowRight, BookOpen, Database,
+  FileText, GitBranch, ShieldCheck, Sparkles, Target,
 } from 'lucide-react';
 
 type Props = { navigateToTab: (tab: string) => void };
