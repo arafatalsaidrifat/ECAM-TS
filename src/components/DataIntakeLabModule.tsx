@@ -1,6 +1,9 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Papa from 'papaparse';
 import { forecastSeries, runForecastStudy, STRATEGIES, type ForecastMetric, type ForecastStrategy } from '../lib/forecasting';
+import { createForecastAdvisory } from '../lib/advisory';
+import { DOMAIN_COLORS, DOMAIN_LABELS } from '../data/sourceRegistry';
+import type { DomainCode } from '../types';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   Activity, AlertTriangle, ArrowDownToLine, ArrowRight, CheckCircle2, Info, XCircle,
@@ -16,6 +19,7 @@ type AuditSummary = { rows: number; valid: number; missingTarget: number; timest
 const DATE_COLUMN_PATTERN = /^(date|time|timestamp|datetime|date_time|observation_date|period|ds|month|year_month)$/i;
 const isDateColumn = (column: string) => DATE_COLUMN_PATTERN.test(column.trim());
 
+const POWER_UNITS: Record<string, string> = { T2M: '°C', T2M_MAX: '°C', T2M_MIN: '°C', PRECTOTCORR: 'mm/day' };
 const POWER_PARAMETERS: Record<string, string> = {
   T2M: 'Mean 2-m air temperature (°C)',
   T2M_MAX: 'Maximum 2-m air temperature (°C)',
@@ -90,11 +94,14 @@ function linePath(values: number[], width: number, height: number, min: number, 
   }).join(' ');
 }
 
-export const DataIntakeLabModule: React.FC = () => {
+interface DataIntakeLabModuleProps { selectedDomain: DomainCode; }
+
+export const DataIntakeLabModule: React.FC<DataIntakeLabModuleProps> = ({ selectedDomain }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<DataRow[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [target, setTarget] = useState('');
+  const [targetUnit, setTargetUnit] = useState('');
   const [timestamp, setTimestamp] = useState('');
   const [sourceLabel, setSourceLabel] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
@@ -111,6 +118,9 @@ export const DataIntakeLabModule: React.FC = () => {
   const [period, setPeriod] = useState(7);
   const [result, setResult] = useState<{ rows: MetricRow[]; forecast: number[]; observations: Observation[]; horizon: number; folds: number; study: ReturnType<typeof runForecastStudy> } | null>(null);
   const [message, setMessage] = useState<{ kind: 'success' | 'info' | 'error'; text: string } | null>(null);
+
+  // A report belongs to the domain in which it was evaluated. Clear it if the domain context changes.
+  useEffect(() => { setResult(null); }, [selectedDomain]);
 
   const numericColumns = useMemo(() => columns.filter(column =>
     rows.slice(0, 100).some(row => Number.isFinite(numberValue(row[column])))
@@ -134,6 +144,7 @@ export const DataIntakeLabModule: React.FC = () => {
     setTimestamp(dateCol ?? nextColumns.find(isDateColumn) ?? '');
     // Never silently select a numeric metadata field as the forecast target.
     setTarget(targetCol ?? '');
+    setTargetUnit(targetCol ? (POWER_UNITS[targetCol] ?? '') : '');
     setRetrievedAt(retrieved ?? new Date().toISOString());
     setHorizon(kind === 'nasa' ? 7 : 24);
     setPeriod(kind === 'nasa' ? 7 : 24);
@@ -224,15 +235,22 @@ export const DataIntakeLabModule: React.FC = () => {
 
   function exportCsv() {
     if (!result) return;
-    const method = result.rows[0]?.strategy ?? 'naive';
+    const selectedMetric = result.rows.find(row => row.strategy === result.study.selectedStrategy);
+    const method = selectedMetric?.strategy ?? 'naive';
     const lines = [
-      ['forecast_step', 'actual', 'forecast', 'selected_method', 'selection_metric', 'horizon_steps', 'development_folds', 'holdout_size', 'source', 'source_version', 'license', 'sha256', 'retrieved_at'].join(','),
+      ['forecast_step', 'domain', 'target', 'target_unit', 'actual', 'forecast', 'selected_method', 'selection_metric', 'cv_mae', 'holdout_mae', 'cadence', 'horizon_steps', 'development_folds', 'holdout_size', 'source', 'source_version', 'license', 'sha256', 'retrieved_at'].join(','),
       ...result.forecast.map((prediction, index) => [
         't+' + (index + 1),
+        selectedDomain,
+        target,
+        targetUnit,
         '',
         prediction,
         method,
         result.study.selectionMetric,
+        selectedMetric?.mae ?? '',
+        selectedMetric?.holdoutMae ?? '',
+        audit.cadence,
         result.horizon,
         result.folds,
         result.study.holdoutSize,
@@ -255,12 +273,36 @@ export const DataIntakeLabModule: React.FC = () => {
   const chartValues = result ? [...historyPlot, ...previewForecast] : historyPlot;
   const chartMin = chartValues.length ? Math.min(...chartValues) : 0;
   const chartMax = chartValues.length ? Math.max(...chartValues) : 1;
-  const chartW = 840;
-  const chartH = 220;
+  const chartW = 1024;
+  const chartH = 280;
   const breakX = historyPlot.length > 1 ? ((historyPlot.length - 1) / Math.max(1, chartValues.length - 1)) * chartW : chartW;
   const historyPath = linePath(historyPlot, chartW, chartH, chartMin, chartMax, 0, breakX);
   const forecastPath = result ? linePath([historyPlot[historyPlot.length - 1] ?? 0, ...previewForecast], chartW, chartH, chartMin, chartMax, breakX, chartW) : '';
   const requiredRows = Math.max(8, period > 1 ? period : 8) + horizon * 3;
+  const advisory = useMemo(() => {
+    if (!result) return null;
+    const selectedMetric = result.rows.find(row => row.strategy === result.study.selectedStrategy);
+    const qualityWarnings = [
+      !timestamp ? 'No timestamp column was supplied; chronological cadence is treated as row order only.' : '',
+      audit.missingTarget > 0 ? audit.missingTarget + ' rows had missing or nonnumeric target values and were excluded.' : '',
+      !sourceVersion.trim() ? 'Source version/release is not recorded.' : '',
+      !sourceLicense.trim() ? 'Source license/terms have not been verified or recorded.' : '',
+    ].filter(Boolean);
+    return createForecastAdvisory({
+      domain: selectedDomain,
+      target,
+      unit: targetUnit,
+      history: result.observations.map(row => row.value),
+      forecast: result.forecast,
+      selectedModel: selectedMetric?.name ?? result.study.selectedStrategy,
+      cvMae: selectedMetric?.mae ?? null,
+      holdoutMae: selectedMetric?.holdoutMae ?? null,
+      cadence: audit.cadence,
+      sourceLabel,
+      importedAt: retrievedAt,
+      qualityWarnings,
+    });
+  }, [result, selectedDomain, target, targetUnit, audit, timestamp, sourceVersion, sourceLicense, sourceLabel, retrievedAt]);
 
   return (
     <div className="space-y-5">
@@ -317,10 +359,13 @@ export const DataIntakeLabModule: React.FC = () => {
           {rows.length > 0 && <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h3 className="font-bold text-slate-900">3. Define the forecast task</h3>
             <label className="mt-4 block text-xs font-semibold text-slate-600">Target variable
-              <select value={target} onChange={event => { setTarget(event.target.value); clearResult(); }} className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-800">
+              <select value={target} onChange={event => { setTarget(event.target.value); setTargetUnit(POWER_UNITS[event.target.value] ?? ''); clearResult(); }} className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-800">
                 <option value="">Choose a numeric target…</option>
                 {numericColumns.map(column => <option value={column} key={column}>{column}{POWER_PARAMETERS[column] ? ' — ' + POWER_PARAMETERS[column] : ''}</option>)}
               </select>
+            </label>
+            <label className="mt-3 block text-xs font-semibold text-slate-600">Target unit
+              <input value={targetUnit} onChange={event => { setTargetUnit(event.target.value); clearResult(); }} placeholder="e.g. MW, BDT/kg, °C, µg/m³" className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-800"/>
             </label>
             <label className="mt-3 block text-xs font-semibold text-slate-600">Timestamp column
               <select value={timestamp} onChange={event => { setTimestamp(event.target.value); clearResult(); }} className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-800">
@@ -382,11 +427,12 @@ export const DataIntakeLabModule: React.FC = () => {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><div className="text-[10px] font-bold uppercase tracking-[.15em] text-teal-700">Rolling-origin evaluation</div><h3 className="mt-1.5 text-lg font-bold text-slate-900">Baseline comparison</h3><p className="mt-1 text-xs text-slate-500">{result.folds} expanding-window development folds · {result.horizon}-step untouched holdout · {result.rows[0]?.points.toLocaleString()} CV predictions</p></div><button onClick={exportCsv} className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"><ArrowDownToLine className="h-4 w-4"/> Export forecast CSV</button></div>
             <div className="mt-5 rounded-xl bg-slate-950 p-3 sm:p-4">
               <div className="mb-3 flex flex-wrap items-center gap-4 text-[10px] text-slate-300"><span><i className="mr-1.5 inline-block h-0.5 w-4 bg-teal-300"/>Observed history</span><span><i className="mr-1.5 inline-block h-0.5 w-4 bg-violet-300"/>Next forecast (best baseline)</span></div>
-              <svg viewBox="0 0 840 250" className="h-auto w-full" role="img" aria-label="Observed time series with selected baseline forecast">
-                {[0,.25,.5,.75,1].map(ratio=><line key={ratio} x1="0" x2="840" y1={ratio*220+10} y2={ratio*220+10} stroke="#26344a" strokeDasharray="3 5"/>)}
-                <path d={historyPath} fill="none" stroke="#67e8d4" strokeWidth="2.3" strokeLinejoin="round" strokeLinecap="round"/>
-                {result && <motion.path d={forecastPath} fill="none" stroke="#b7a9ff" strokeWidth="2.8" strokeDasharray="6 4" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: .7 }} />}
-                {result && <line x1={breakX} x2={breakX} y1="8" y2="234" stroke="#b7a9ff" strokeDasharray="3 4" opacity=".5"/>}
+              <svg viewBox="0 0 1024 320" className="h-auto w-full" role="img" aria-label="Observed time series with selected baseline forecast">
+                <defs><linearGradient id="ecam-history-stroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#67e8d4"/><stop offset="100%" stopColor="#8ef7e3"/></linearGradient><linearGradient id="ecam-forecast-stroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#b7a9ff"/><stop offset="100%" stopColor="#86b8ff"/></linearGradient></defs>
+                {[0,.25,.5,.75,1].map(ratio=><line key={ratio} x1="0" x2="1024" y1={ratio*280+10} y2={ratio*280+10} stroke="#26344a" strokeDasharray="3 5"/>)}
+                <path d={historyPath} fill="none" stroke="url(#ecam-history-stroke)" strokeWidth="2.8" strokeLinejoin="round" strokeLinecap="round"/>
+                {result && <motion.path d={forecastPath} fill="none" stroke="url(#ecam-forecast-stroke)" strokeWidth="3.2" strokeDasharray="6 4" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: .7 }} />}
+                {result && <line x1={breakX} x2={breakX} y1="8" y2="300" stroke="#b7a9ff" strokeDasharray="3 4" opacity=".5"/>}
               </svg>
               <p className="mt-2 text-[10px] leading-4 text-slate-400">Point forecast only. No calibrated uncertainty interval or CRPS is reported by this baseline module.</p>
             </div>
@@ -398,6 +444,30 @@ export const DataIntakeLabModule: React.FC = () => {
             </div>
             <div className="mt-3 flex gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-900"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0"/><span>Model selection uses only development-window rolling-origin MAE. The final horizon is kept out of selection and scored once for each baseline. This is still only a baseline study on one series: it does not include tree models, foundation models, probabilistic calibration, multi-dataset replication or a preregistered protocol.</span></div>
           </motion.section>}
+          {advisory && <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="ecam-advisory-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" style={{ '--advisory-accent': DOMAIN_COLORS[selectedDomain] } as React.CSSProperties}>
+            <div className="ecam-advisory-head">
+              <div><div className="ecam-overview-label">DOMAIN-AWARE DECISION SUPPORT</div><h3 className="mt-1 text-lg font-bold text-slate-900">Forecast interpretation</h3><p className="mt-1 text-xs leading-5 text-slate-500">Rule-based v0.1 · no LLM was invoked · grounded in the selected baseline and current data audit.</p></div>
+              <span className="ecam-advisory-domain">{DOMAIN_LABELS[selectedDomain]}</span>
+            </div>
+            <div className="ecam-advisory-summary">
+              <div className="ecam-advisory-direction"><span>Final-point direction</span><strong>{advisory.direction.replaceAll('_', ' ')}</strong></div>
+              <p>{advisory.summary}</p>
+            </div>
+            <div className="ecam-advisory-metrics">
+              <div><span>Latest actual</span><strong>{advisory.latestObserved === null ? 'n/a' : fmt(advisory.latestObserved)} {targetUnit}</strong></div>
+              <div><span>Final forecast</span><strong>{advisory.finalForecast === null ? 'n/a' : fmt(advisory.finalForecast)} {targetUnit}</strong></div>
+              <div><span>Absolute change</span><strong>{advisory.absoluteChange === null ? 'n/a' : (advisory.absoluteChange > 0 ? '+' : '') + fmt(advisory.absoluteChange)} {targetUnit}</strong></div>
+              <div><span>Relative change</span><strong>{advisory.percentageChange === null ? 'not meaningful' : (advisory.percentageChange > 0 ? '+' : '') + fmt(advisory.percentageChange) + '%'}</strong></div>
+              <div><span>Development CV MAE</span><strong>{fmt(advisory.cvMae)} {targetUnit}</strong></div>
+              <div><span>One-block holdout MAE</span><strong>{fmt(advisory.holdoutMae)} {targetUnit}</strong></div>
+            </div>
+            <div className="ecam-advisory-actions-grid">
+              <section><h4><CheckCircle2 size={15}/> What to do</h4>{advisory.whatToDo.map(item => <p key={item}>{item}</p>)}</section>
+              <section><h4><XCircle size={15}/> What not to do</h4>{advisory.whatNotToDo.map(item => <p key={item}>{item}</p>)}</section>
+            </div>
+            <div className="ecam-advisory-cautions"><h4><Info size={14}/> Limitations and checks</h4><ul>{advisory.cautions.map(item => <li key={item}>{item}</li>)}</ul></div>
+            <div className="ecam-advisory-source">Source: {advisory.sourceLabel || 'not recorded'} · imported/retrieved: {advisory.importedAt ? new Date(advisory.importedAt).toLocaleString() : 'not recorded'} · cadence: {advisory.cadence} · model: {advisory.selectedModel}</div>
+          </motion.section>}
         </div>
       </div>
 
@@ -405,7 +475,7 @@ export const DataIntakeLabModule: React.FC = () => {
         {rows.length > 0 && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-[10px] text-slate-500">
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-700"/>{rows.length.toLocaleString()} source rows in memory</span>
           <span className="inline-flex items-center gap-1.5"><Database className="h-3.5 w-3.5"/>{observations.length.toLocaleString()} numeric observations for {target || 'selected target'}</span>
-          <button onClick={() => { setRows([]); setColumns([]); setTarget(''); setTimestamp(''); setSourceLabel(''); setSourceUrl(''); setSourceNote(''); setSourceVersion(''); setSourceLicense(''); setFileChecksum(''); setRetrievedAt(''); setResult(null); setMessage({kind:'info',text:'Cleared the current in-memory dataset. Original source files were not changed.'}); if (inputRef.current) inputRef.current.value=''; }} className="ml-auto font-semibold text-slate-600 underline hover:text-slate-900">Clear current data</button>
+          <button onClick={() => { setRows([]); setColumns([]); setTarget(''); setTargetUnit(''); setTimestamp(''); setSourceLabel(''); setSourceUrl(''); setSourceNote(''); setSourceVersion(''); setSourceLicense(''); setFileChecksum(''); setRetrievedAt(''); setResult(null); setMessage({kind:'info',text:'Cleared the current in-memory dataset. Original source files were not changed.'}); if (inputRef.current) inputRef.current.value=''; }} className="ml-auto font-semibold text-slate-600 underline hover:text-slate-900">Clear current data</button>
         </motion.div>}
       </AnimatePresence>
     </div>
