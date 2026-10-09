@@ -1,7 +1,7 @@
 import React from 'react';
 import { DomainCode } from '../types';
 import { DATASET_REGISTRY } from '../data/datasets';
-import { Activity, BookOpen, Cpu, Database, HelpCircle, ShieldCheck, SlidersHorizontal, ChartNoAxesCombined } from 'lucide-react';
+import { Activity, BookOpen, Cpu, Database, HelpCircle, ShieldCheck, SlidersHorizontal, ChartNoAxesCombined, GitBranch } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface HeaderProps {
@@ -20,6 +20,7 @@ const tabs = [
   { id: 'stress-testing', label: 'Stress tests', short: 'Stress tests', icon: ShieldCheck, group: 'Diagnostics' },
   { id: 'scientific-literature', label: 'Literature', short: 'Literature', icon: BookOpen, group: 'Research' },
   { id: 'defense-inquiry', label: 'Research notes', short: 'Notes', icon: HelpCircle, group: 'Research' },
+  { id: 'research-roadmap', label: 'Research plan', short: 'Plan', icon: GitBranch, group: 'Research' },
 ];
 export const Header: React.FC<HeaderProps> = ({ currentTab, setCurrentTab, selectedDomain, setSelectedDomain }) => {
   const currentDataset = DATASET_REGISTRY[selectedDomain];
