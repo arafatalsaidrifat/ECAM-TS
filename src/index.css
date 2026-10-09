@@ -1,1 +1,82 @@
 @import "tailwindcss";
+
+/* ECAM-TS research workspace — dark glass / restrained depth */
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --ecam-bg: #070d18;
+  --ecam-panel: rgba(14, 24, 41, .82);
+  --ecam-line: rgba(148, 171, 202, .16);
+  --ecam-text: #e9f0fb;
+  --ecam-muted: #91a1b8;
+  --ecam-teal: #64f2d2;
+  --ecam-violet: #a69bff;
+}
+html { min-width: 320px; background: var(--ecam-bg); }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--ecam-bg); color: var(--ecam-text); }
+button, input, select, textarea { font: inherit; }
+button { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; }
+button:hover { transform: translateY(-1px); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--ecam-teal); outline-offset: 3px; }
+::selection { background: rgba(100, 242, 210, .28); color: #f7fffd; }
+
+.ecam-app {
+  color: var(--ecam-text);
+  background:
+    radial-gradient(ellipse at 82% -8%, rgba(36, 153, 153, .19), transparent 36rem),
+    radial-gradient(ellipse at 12% 28%, rgba(105, 83, 190, .12), transparent 34rem),
+    linear-gradient(145deg, #070d18 0%, #0a1221 55%, #070d18 100%);
+  isolation: isolate;
+}
+.ecam-app main { position: relative; }
+.ecam-app main > div { transform-origin: 50% 0; }
+.ecam-scenario-bar {
+  color: var(--ecam-text);
+  background: rgba(8, 15, 28, .82);
+  border-color: var(--ecam-line);
+  backdrop-filter: blur(18px);
+}
+.ecam-scenario-bar button { border: 1px solid transparent; }
+.ecam-scenario-bar button:not(.bg-blue-600) {
+  color: #b7c5d8;
+  background: rgba(148, 171, 202, .08);
+}
+.ecam-scenario-bar button:not(.bg-blue-600):hover {
+  color: #effffb;
+  background: rgba(100, 242, 210, .1);
+  border-color: rgba(100, 242, 210, .25);
+}
+.ecam-app .bg-white {
+  background-color: rgba(13, 23, 39, .94) !important;
+}
+.ecam-app .text-slate-900, .ecam-app .text-slate-800 { color: #e9f0fb !important; }
+.ecam-app .text-slate-700, .ecam-app .text-slate-600 { color: #c0cde0 !important; }
+.ecam-app .text-slate-500, .ecam-app .text-slate-400 { color: var(--ecam-muted) !important; }
+.ecam-app .border-slate-200, .ecam-app .border-slate-200\/80, .ecam-app .border-slate-300 { border-color: var(--ecam-line) !important; }
+.ecam-app .bg-slate-50 { background-color: rgba(148, 171, 202, .045) !important; }
+.ecam-app .bg-slate-100 { background-color: rgba(148, 171, 202, .09) !important; }
+.ecam-app .bg-slate-200 { background-color: rgba(148, 171, 202, .14) !important; }
+.ecam-app [class*="rounded-xl"], .ecam-app [class*="rounded-2xl"] {
+  transition: border-color .22s ease, box-shadow .22s ease, background-color .22s ease;
+}
+.ecam-app .shadow, .ecam-app .shadow-sm, .ecam-app .shadow-md, .ecam-app .shadow-lg {
+  box-shadow: 0 16px 45px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .025) !important;
+}
+.ecam-app input, .ecam-app select, .ecam-app textarea {
+  color: var(--ecam-text);
+  background: rgba(5, 11, 21, .7);
+  border-color: var(--ecam-line);
+}
+.ecam-footer {
+  color: var(--ecam-muted);
+  background: rgba(6, 12, 22, .94);
+  border-color: var(--ecam-line);
+}
+.ecam-footer .bg-slate-100 { background: rgba(148, 171, 202, .08) !important; }
+.ecam-footer .text-slate-700 { color: #c0cde0 !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
