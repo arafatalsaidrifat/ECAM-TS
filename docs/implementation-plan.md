@@ -1,47 +1,51 @@
 # ECAM-TS implementation and research protocol
 
-## Current code reality
-The original GitHub app is a scenario simulator with a synthetic series generator in \`src/data/simulationEngine.ts\`, static model metrics in \`src/data/datasets.ts\`, and heuristic routing weights. Those modules are useful for UI/defense demonstrations but are not measured experimental results. The new Data Intake Lab is an isolated real-data path; it does not silently feed uploaded data into the existing synthetic scenario screens.
+## Current status
+ECAM-TS is a research workbench prototype. The legacy scenario charts, fixed leaderboard numbers, routing weights, operational impacts and stress tests still come from a simulator/static mock values. They are for interface exploration and committee-defense discussion only; they are not measured model results.
 
-## What is implemented in this change
-- A dedicated Data Intake Lab view with an actual NASA POWER Daily API connector fixed to the Dhaka point and CSV import for user-downloaded source files.
-- Target/timestamp selection, counts for invalid target values and timestamp problems, duplicate detection, cadence inference, source URL/retrieval metadata, and exportable forecast rows.
-- Five transparent reference strategies: naive, seasonal naive, trailing moving average, drift, equal-weight mean.
-- Multi-fold chronological evaluation, with non-overlapping forecast windows where data volume permits, scored by MAE, RMSE and MASE. These folds are a first-pass utility, not the preregistered paper experiment.
-- Motion for React transitions and clear status notices.
-- Repository notices that current scenario outputs, router weights and the fixed leaderboard table remain synthetic/static until connected to actual files and benchmark jobs.
+The Real Data Intake & Backtest view is the only path that currently evaluates a user-loaded source series. It supports NASA POWER daily weather observations for the documented Dhaka grid point and CSV imports for other series.
 
-## Data acquisition decisions
-1. **Hourly electricity:** use the public Mendeley Data record and download its CSV through the source page. Version 1 is dated 30 March 2026, describes records from April 2015 through March 2026 and includes national generation, recorded demand and estimated load-shedding fields. Confirm columns, time zone, license and data corrections in the exact downloaded file. Do not equate recorded demand with latent demand under outages; do not add load-shedding unless the meaning and units support it. https://data.mendeley.com/datasets/vpk8spw2mm/1
-2. **Food prices:** use a pinned version of the World Bank monthly market/product panel. The catalog says 110 Bangladesh markets, spans Jan 2007–Sep 2026 on the 2026-09-28 snapshot and is updated/revised; a newer snapshot may now be published. Store the exact version and file checksum; modeled estimates and ML-assisted imputation are part of the data definition. https://microdata.worldbank.org/catalog/6164/data-api
-3. **Weather:** the server endpoint queries NASA POWER daily point data for 23.8103 N, 90.4125 E, returning T2M, T2M_MAX, T2M_MIN and PRECTOTCORR for a date range. NASA POWER describes analysis-ready gridded/reanalysis data; it is not a BMD station record. https://power.larc.nasa.gov/docs/services/api/temporal/daily/
-4. **External stress test:** UCI Air Quality is an Italian 2004–2005 sensor series with substantial missingness; do not use it to support Dhaka claims.
-5. **Hydrology:** keep river/gauge levels as a conditional extension until a reproducible historical file, metadata and license are verified.
+## Scientific pipeline implemented in this iteration
+1. Import source CSV or fetch NASA POWER data, retain source URL/retrieval time and expose target/timestamp audits.
+2. Require timestamp uniqueness and parseability when a timestamp is selected; do not silently deduplicate or impute missing targets.
+3. Define a single numeric target, forecast horizon and seasonal period.
+4. Split the last forecast horizon into an untouched chronological holdout.
+5. Select among five transparent baselines using expanding-window rolling-origin MAE on development data only.
+6. Score each baseline on the held-out horizon separately; the holdout scores must not determine the selected strategy.
+7. Fit the selected baseline on all observed values for the operational next-horizon forecast and export forecasts with selection metric, fold count, holdout size, source label and retrieval timestamp.
+8. Unit tests cover naive/seasonal forecasts, final holdout separation, insufficient data and non-finite target rejection. CI should run type-check, tests and production build.
 
-## Evaluation protocol required for the paper
-- Define each task as target + unit + site/market + sampling frequency + issue time + horizon + available covariates.
-- Keep hourly energy, monthly food prices and daily weather as independent targets at their native frequencies.
-- Freeze exact source versions and a final chronological holdout. Use expanding/rolling validation inside the training block; no random shuffle.
-- Fit imputation, scaling, transforms and feature engineering on each training fold only. At each issue time, use only history and exogenous values genuinely available by that time.
-- Compare persistence/naive and seasonal-naive, ETS/ARIMA/Theta, and a properly tuned lag/covariate tree model before adding pretrained models.
-- Add pinned, licensed and versioned Chronos-2, TimesFM, and Moirai/Uni2TS adapters where input length, future covariate support, hardware and output distributions are compatible.
-- Compare best single model, equal-weight mean, regularized stacking and then FFORMA-style routing. Meta-training must use out-of-fold base predictions; keep the final block untouched until selection is frozen.
-- Report MAE/RMSE in native units; MASE with the seasonal scaling denominator specified. Report CRPS/quantile loss only when comparable predictive distributions exist; report compute/runtime and uncertainty.
-- Pre-register separate lead-up, holiday, post-event recovery, Durga Puja, evening peak and extreme-weather windows. Event effects are hypotheses; a raw difference is not causal evidence.
+This is a reproducible baseline protocol, not yet a fully validated ECAM-TS paper pipeline. The holdout is one horizon long and its uncertainty is high; use repeated outer rolling-origin evaluation across multiple time periods and datasets before drawing research conclusions.
 
-## Novelty guardrail
-Do not claim ECAM-TS is the first adaptive router for time-series foundation models. TimeRouter (arXiv preprint posted 10 June 2026) explicitly studies efficient routing among pretrained TSFMs, selective gating and ensemble fallback. A defensible contribution must emerge from a systematic literature review and could focus more narrowly on leakage-safe Bangladesh-relevant multi-domain evaluation and versioned local event-window ablations. https://arxiv.org/abs/2606.11625
+## Next scientific milestones
+### A. Freeze dataset specifications
+For each domain, record exact version/hash, license, geography, units, native cadence, timezone, missing/sentinel codes, revision policy, forecast target, forecast origin, horizon, feature availability times and aggregation rules. Preserve immutable raw files; transformations must be scripted and versioned.
 
-## Next milestones
-1. Download and audit the selected Mendeley and World Bank files; persist data cards and SHA256 checksums.
-2. Add ingestion/normalization to an experiment store, with documented corrections, timezone handling, market/product grouping and panel-aware splits.
-3. Add classical statistical and tree-based adapters with consistent rolling-origin code; store every forecast row and model version.
-4. Add foundation-model adapters and compatibility tests; don't fetch model weights from a page render.
-5. Implement OOF forecast storage and train constrained stackers/FFORMA-style routers only when enough independent series/origins exist.
-6. Add experiment persistence, background jobs, authentication/authorization, upload quotas, monitoring, backups and production CORS before a public deployment.
+### B. Pre-register the evaluation protocol
+Set train/validation/test dates, forecast horizons, seasonal periods, model families, metrics, seeds, retraining policy, ablations and statistical comparisons before examining the final test results. No random shuffling for temporal forecasting. Use the same origins and horizons for every eligible model.
 
-## Source and runtime notes
-- Motion for React is installed as \`motion\`; import from \`motion/react\`. Respect reduced-motion settings.
-- The Data Intake Lab fetches NASA POWER through the existing Express server to avoid browser CORS issues; its CSV path runs in the browser session and doesn't upload the source file to a server.
-- No external foundation-model weights are loaded by the lab.
+### C. Implement actual model adapters
+Add seasonal naive, ETS/ARIMA, LightGBM/XGBoost with fold-local lag/calendar features, and pinned Chronos-2/TimesFM/Moirai adapters where licenses, compute, runtime and input-frequency assumptions permit. Record model version, checkpoint, parameters, runtime, failures and dependency versions. Do not represent an unimplemented model as a measured score.
 
+### D. Feature and leakage discipline
+At every origin, only use fields that would have been available at that issue time. Fit imputation, scaling, feature selection and hyperparameter search within training folds. Weather covariates for past electricity forecasts must be archived forecasts available at the origin, not realized future weather. Event/festival calendars must be versioned and known in advance.
+
+### E. Evaluation and uncertainty
+Report MAE, RMSE and MASE with scale definitions; report per-horizon and per-regime results, fold-level scores, naive-baseline skill, runtime and failure rates. Add probabilistic forecasts only with documented quantile/interval calibration and pinball loss/coverage/CRPS implementation. Do not derive CRPS from MAE or label arbitrary bands as calibrated intervals.
+
+### F. Adaptive routing novelty
+Generate out-of-fold predictions for each candidate model at the same forecast origins. Train the router only on these out-of-fold predictions and past-available context features. Compare equal weights, best single model, static validation-weighted ensemble, and learned router on outer held-out origins. Tune router complexity only inside inner folds. Report per-domain/per-regime performance, calibration of model selection, confidence intervals and paired tests. Avoid claiming novelty until the related-work table establishes it.
+
+### G. Production readiness
+Move large data processing and model inference from browser memory to a versioned backend job system. Add dataset/experiment persistence, job status, idempotent runs, cancellation, artifact storage, access control, rate limits, request validation, structured logs, monitoring, reproducible container builds, secret management and documented restore procedures. Pin dependencies and use a lockfile; add security scanning and CI for unit/integration/e2e tests.
+
+## What is deliberately not claimed
+- No full ECAM-TS router has been trained.
+- No tree-based or foundation model has been evaluated by this UI yet.
+- No multi-dataset replication, calibrated probabilistic forecasts, formal significance tests, or operational deployment has been completed.
+- A passing TypeScript build and unit tests verify code paths, not the scientific validity of the research hypothesis.
+
+## References
+- Hyndman & Athanasopoulos, Forecasting: Principles and Practice, forecast accuracy and time-series cross-validation: https://otexts.robjhyndman.com/fpp3/accuracy.html
+- Cerqueira et al. (2022), Forecast evaluation for data scientists: common pitfalls and best practices: https://doi.org/10.1007/s10618-022-00894-5
+- NASA POWER daily API documentation: https://power.larc.nasa.gov/docs/services/api/temporal/daily/

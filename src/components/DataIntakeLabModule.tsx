@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import Papa from 'papaparse';
+import { forecastSeries, runForecastStudy, STRATEGIES, type ForecastMetric, type ForecastStrategy } from '../lib/forecasting';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   Activity, AlertTriangle, ArrowDownToLine, ArrowRight, CheckCircle2,
@@ -8,17 +9,10 @@ import {
 
 type DataRow = Record<string, string | number | null | undefined>;
 type Observation = { timestamp: string; value: number; sourceIndex: number };
-type Strategy = 'naive' | 'seasonal_naive' | 'moving_average' | 'drift' | 'equal_weight';
-type MetricRow = { strategy: Strategy; name: string; mae: number; rmse: number; mase: number | null; folds: number; points: number };
+type Strategy = ForecastStrategy;
+type MetricRow = ForecastMetric;
 type AuditSummary = { rows: number; valid: number; missingTarget: number; timestampParseFailures: number; duplicateTimestamps: number; cadence: string; start: string; end: string };
 
-const METHODS: Array<{ id: Strategy; name: string; description: string }> = [
-  { id: 'naive', name: 'Naive', description: 'Repeats the last observation.' },
-  { id: 'seasonal_naive', name: 'Seasonal naive', description: 'Repeats the last observed seasonal cycle.' },
-  { id: 'moving_average', name: 'Moving average', description: 'Carries forward a trailing average.' },
-  { id: 'drift', name: 'Drift', description: 'Extends the average historical slope.' },
-  { id: 'equal_weight', name: 'Equal-weight ensemble', description: 'Averages the four baseline forecasts.' },
-];
 const POWER_PARAMETERS: Record<string, string> = {
   T2M: 'Mean 2-m air temperature (°C)',
   T2M_MAX: 'Maximum 2-m air temperature (°C)',
@@ -34,70 +28,6 @@ const average = (values: number[]) => values.length ? values.reduce((sum, value)
 const fmt = (value: number | null, digits = 2) => value === null || !Number.isFinite(value)
   ? 'n/a'
   : value.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
-
-function forecast(history: number[], horizon: number, strategy: Strategy, period: number): number[] {
-  if (!history.length) throw new Error('No numeric observations to forecast.');
-  const n = history.length;
-  const last = history[n - 1];
-  const naive = Array.from({ length: horizon }, () => last);
-  const seasonal = Array.from({ length: horizon }, (_, i) =>
-    n >= period && period > 1 ? history[n - period + (i % period)] : last
-  );
-  const window = Math.max(1, Math.min(n, period > 1 ? period : 7));
-  const moving = Array.from({ length: horizon }, () => average(history.slice(-window)));
-  const slope = n > 1 ? (last - history[0]) / (n - 1) : 0;
-  const drift = Array.from({ length: horizon }, (_, i) => last + slope * (i + 1));
-  if (strategy === 'naive') return naive;
-  if (strategy === 'seasonal_naive') return seasonal;
-  if (strategy === 'moving_average') return moving;
-  if (strategy === 'drift') return drift;
-  return naive.map((_, i) => (naive[i] + seasonal[i] + moving[i] + drift[i]) / 4);
-}
-
-function runRollingOrigin(values: number[], horizon: number, period: number): MetricRow[] {
-  if (values.length < 16) throw new Error('At least 16 valid numeric observations are required for a first-pass backtest.');
-  if (horizon < 1 || period < 1) throw new Error('Horizon and seasonal period must be positive.');
-  let initial = Math.max(period * 2, Math.ceil(values.length * 0.5));
-  if (initial + horizon > values.length) initial = values.length - horizon;
-  if (initial < 8 || initial + horizon > values.length) throw new Error('Not enough history for the selected horizon.');
-  const possibleOrigins = Math.floor((values.length - initial) / horizon);
-  const folds = Math.min(12, possibleOrigins);
-  if (folds < 2) {
-    throw new Error('Not enough observations for at least two non-overlapping chronological test windows. Reduce the horizon or use a longer series.');
-  }
-  const stride = Math.max(horizon, Math.floor((values.length - horizon - initial) / Math.max(1, folds - 1)));
-  const originList: number[] = [];
-  for (let i = 0; i < folds; i++) {
-    const origin = initial + i * stride;
-    if (origin + horizon <= values.length) originList.push(origin);
-  }
-  if (originList.length < 2) throw new Error('Could not form at least two chronological validation folds.');
-
-  return METHODS.map(method => {
-    const errors: number[] = [];
-    const scaledErrors: number[] = [];
-    for (const origin of originList) {
-      const train = values.slice(0, origin);
-      const actual = values.slice(origin, origin + horizon);
-      const predicted = forecast(train, actual.length, method.id, period);
-      errors.push(...actual.map((value, index) => value - predicted[index]));
-      const differences = period > 1 && train.length > period
-        ? train.slice(period).map((value, index) => Math.abs(value - train[index]))
-        : train.slice(1).map((value, index) => Math.abs(value - train[index]));
-      const scale = average(differences);
-      if (scale > 0) scaledErrors.push(average(actual.map((value, index) => Math.abs(value - predicted[index]))) / scale);
-    }
-    return {
-      strategy: method.id,
-      name: method.name,
-      mae: average(errors.map(Math.abs)),
-      rmse: Math.sqrt(average(errors.map(error => error * error))),
-      mase: scaledErrors.length ? average(scaledErrors) : null,
-      folds: originList.length,
-      points: errors.length,
-    };
-  }).sort((a, b) => a.mae - b.mae);
-}
 
 function auditRows(rows: DataRow[], target: string, timestamp: string): AuditSummary {
   let missingTarget = 0;
@@ -173,7 +103,7 @@ export const DataIntakeLabModule: React.FC = () => {
   const [running, setRunning] = useState(false);
   const [horizon, setHorizon] = useState(7);
   const [period, setPeriod] = useState(7);
-  const [result, setResult] = useState<{ rows: MetricRow[]; forecast: number[]; observations: Observation[]; horizon: number; folds: number } | null>(null);
+  const [result, setResult] = useState<{ rows: MetricRow[]; forecast: number[]; observations: Observation[]; horizon: number; folds: number; study: ReturnType<typeof runForecastStudy> } | null>(null);
   const [message, setMessage] = useState<{ kind: 'success' | 'info' | 'error'; text: string } | null>(null);
 
   const numericColumns = useMemo(() => columns.filter(column =>
@@ -267,10 +197,10 @@ export const DataIntakeLabModule: React.FC = () => {
       if (timestamp && audit.duplicateTimestamps > 0) throw new Error('Duplicate timestamps were found. Resolve them in a documented working copy before backtesting.');
       if (timestamp && audit.timestampParseFailures > 0) throw new Error('Some timestamps cannot be parsed. Fix or explicitly document those rows before backtesting.');
       if (observations.length < 16) throw new Error('At least 16 valid numeric rows are required.');
-      const metrics = runRollingOrigin(values, horizon, period);
-      const ranked = metrics.slice().sort((a, b) => a.mae - b.mae);
-      setResult({ rows: ranked, forecast: forecast(values, horizon, ranked[0].strategy, period), observations, horizon, folds: ranked[0].folds });
-      setMessage({ kind: 'success', text: 'Finished a chronological rolling-origin comparison. This is a first-pass baseline result, not a full paper-ready experiment.' });
+      const study = runForecastStudy(values, horizon, period);
+      const ranked = study.metrics;
+      setResult({ rows: ranked, forecast: study.futureForecast, observations, horizon, folds: study.cvOrigins.length, study });
+      setMessage({ kind: 'success', text: 'Development-window model selection and a separate final-horizon holdout evaluation completed. This validates only the five implemented baselines on this series.' });
     } catch (error) {
       setMessage({ kind: 'error', text: error instanceof Error ? error.message : 'Experiment could not run.' });
     } finally {
@@ -282,15 +212,18 @@ export const DataIntakeLabModule: React.FC = () => {
     if (!result) return;
     const method = result.rows[0]?.strategy ?? 'naive';
     const lines = [
-      ['timestamp', 'actual', 'forecast', 'method', 'horizon_steps', 'validation_folds', 'source'].join(','),
+      ['forecast_step', 'actual', 'forecast', 'selected_method', 'selection_metric', 'horizon_steps', 'development_folds', 'holdout_size', 'source', 'retrieved_at'].join(','),
       ...result.forecast.map((prediction, index) => [
         't+' + (index + 1),
         '',
         prediction,
         method,
+        result.study.selectionMetric,
         result.horizon,
         result.folds,
+        result.study.holdoutSize,
         sourceLabel,
+        retrievedAt,
       ].map(cell => '"' + String(cell ?? '').replace(/"/g, '""') + '"').join(',')),
     ];
     const blobUrl = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' }));
@@ -424,7 +357,7 @@ export const DataIntakeLabModule: React.FC = () => {
           </section>
 
           {result && <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><div className="text-[10px] font-bold uppercase tracking-[.15em] text-teal-700">Rolling-origin evaluation</div><h3 className="mt-1.5 text-lg font-bold text-slate-900">Baseline comparison</h3><p className="mt-1 text-xs text-slate-500">{result.folds} chronological folds · {result.horizon} steps per fold · {result.rows[0]?.points.toLocaleString()} scored predictions</p></div><button onClick={exportCsv} className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"><ArrowDownToLine className="h-4 w-4"/> Export forecast CSV</button></div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><div className="text-[10px] font-bold uppercase tracking-[.15em] text-teal-700">Rolling-origin evaluation</div><h3 className="mt-1.5 text-lg font-bold text-slate-900">Baseline comparison</h3><p className="mt-1 text-xs text-slate-500">{result.folds} expanding-window development folds · {result.horizon}-step untouched holdout · {result.rows[0]?.points.toLocaleString()} CV predictions</p></div><button onClick={exportCsv} className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"><ArrowDownToLine className="h-4 w-4"/> Export forecast CSV</button></div>
             <div className="mt-5 rounded-xl bg-slate-950 p-3 sm:p-4">
               <div className="mb-3 flex flex-wrap items-center gap-4 text-[10px] text-slate-300"><span><i className="mr-1.5 inline-block h-0.5 w-4 bg-teal-300"/>Observed history</span><span><i className="mr-1.5 inline-block h-0.5 w-4 bg-violet-300"/>Next forecast (best baseline)</span></div>
               <svg viewBox="0 0 840 250" className="h-auto w-full" role="img" aria-label="Observed time series with selected baseline forecast">
@@ -436,12 +369,12 @@ export const DataIntakeLabModule: React.FC = () => {
               <p className="mt-2 text-[10px] leading-4 text-slate-400">Point forecast only. No calibrated uncertainty interval or CRPS is reported by this baseline module.</p>
             </div>
             <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200">
-              <table className="w-full min-w-[540px] border-collapse text-left text-xs">
-                <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500"><tr><th className="px-3 py-3">Method</th><th className="px-3 py-3">MAE</th><th className="px-3 py-3">RMSE</th><th className="px-3 py-3">MASE</th><th className="px-3 py-3">Folds</th></tr></thead>
-                <tbody>{result.rows.map((row, index)=><tr key={row.strategy} className={index===0?'border-t border-emerald-200 bg-emerald-50/70':'border-t border-slate-100'}><td className="px-3 py-3 font-semibold text-slate-800">{index===0&&<span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"/>}{row.name}</td><td className="px-3 py-3 font-mono text-slate-700">{fmt(row.mae)}</td><td className="px-3 py-3 font-mono text-slate-700">{fmt(row.rmse)}</td><td className="px-3 py-3 font-mono text-slate-700">{fmt(row.mase)}</td><td className="px-3 py-3 text-slate-600">{row.folds}</td></tr>)}</tbody>
+              <table className="w-full min-w-[760px] border-collapse text-left text-xs">
+                <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500"><tr><th className="px-3 py-3">Method</th><th className="px-3 py-3">CV MAE</th><th className="px-3 py-3">CV RMSE</th><th className="px-3 py-3">CV MASE</th><th className="px-3 py-3">Holdout MAE</th><th className="px-3 py-3">Holdout RMSE</th><th className="px-3 py-3">Folds</th></tr></thead>
+                <tbody>{result.rows.map((row, index)=><tr key={row.strategy} className={index===0?'border-t border-emerald-200 bg-emerald-50/70':'border-t border-slate-100'}><td className="px-3 py-3 font-semibold text-slate-800">{index===0&&<span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"/>}{row.name}</td><td className="px-3 py-3 font-mono text-slate-700">{fmt(row.mae)}</td><td className="px-3 py-3 font-mono text-slate-700">{fmt(row.rmse)}</td><td className="px-3 py-3 font-mono text-slate-700">{fmt(row.mase)}</td><td className="px-3 py-3 font-mono font-semibold text-slate-800">{fmt(row.holdoutMae)}</td><td className="px-3 py-3 font-mono text-slate-700">{fmt(row.holdoutRmse)}</td><td className="px-3 py-3 text-slate-600">{row.folds}</td></tr>)}</tbody>
               </table>
             </div>
-            <div className="mt-3 flex gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-900"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0"/><span>This is a first-pass baseline backtest on the loaded series only. It is not a preregistered final test, does not include tree models or foundation models, and should not be called a complete ECAM-TS result.</span></div>
+            <div className="mt-3 flex gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs leading-5 text-blue-900"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0"/><span>Model selection uses only development-window rolling-origin MAE. The final horizon is kept out of selection and scored once for each baseline. This is still only a baseline study on one series: it does not include tree models, foundation models, probabilistic calibration, multi-dataset replication or a preregistered protocol.</span></div>
           </motion.section>}
         </div>
       </div>

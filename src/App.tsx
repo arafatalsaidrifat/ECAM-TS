@@ -84,7 +84,7 @@ export default function App() {
   }, [selectedDomain, selectedScenario, ablation, stress, routerWeights, gridCapacityMW]);
 
   return (
-    <div className="ecam-app min-h-screen flex flex-col font-sans antialiased selection:bg-teal-200 selection:text-slate-950">
+    <div id="top" className="ecam-app min-h-screen flex flex-col font-sans antialiased selection:bg-teal-200 selection:text-slate-950">
       {/* Top Header & Defense Navigation */}
       <Header
         currentTab={currentTab}
@@ -93,13 +93,13 @@ export default function App() {
         setSelectedDomain={handleDomainChange}
       />
 
-      {/* Quick-Try Example Bar (Science UI Standard) */}
-      <section className="ecam-scenario-bar border-b py-2.5 px-4 sm:px-6 lg:px-8">
+      {/* Clearly marked illustrative presets, not a source-data model run. */}
+      <section className="ecam-scenario-bar border-b py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] flex items-center gap-1">
-              <Play className="w-3 h-3 text-blue-600 inline" />
-              Live Defense Scenarios:
+            <span className="font-semibold uppercase tracking-wider text-[10px] flex items-center gap-1">
+              <Play className="w-3 h-3 inline" />
+              Illustrative scenarios:
             </span>
 
             {PRESET_SCENARIOS.map((scen) => {
@@ -125,9 +125,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3 font-mono text-[11px] text-slate-500">
-            <span className="flex items-center gap-1 text-emerald-700">
+            <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              Origin: {selectedScenario.originTimestamp}
+              Demo origin: {selectedScenario.originTimestamp}
             </span>
             <span className="hidden md:inline text-slate-300">|</span>
             <span className="hidden md:inline">
@@ -141,7 +141,7 @@ export default function App() {
       <div className="mx-4 mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950 sm:mx-6 lg:mx-8">
         <div className="mx-auto flex max-w-7xl items-start gap-2.5">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
-          <p><strong>Prototype integrity notice.</strong> The existing scenario charts, fixed benchmark scores, routing weights and stress-test outputs are simulated/static demonstration values—not measured research results. Use <strong>Real Data Intake & Backtest</strong> for imported source CSVs or live NASA POWER observations. Uploads do not automatically replace the simulation in other tabs.</p>
+          <p><strong>Data integrity.</strong> Scenario charts, fixed benchmark scores, routing weights and stress-test outputs are simulated/static demonstrations—not measured research results. Use <strong>Real Data Intake & Backtest</strong> for imported source CSVs or live NASA POWER observations. Uploads do not automatically replace the simulation in other tabs.</p>
         </div>
       </div>
 
@@ -229,7 +229,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <div className="font-semibold text-slate-800">
-              ECAM-TS: Event- and Context-Aware Multi-Domain Time-Series Forecasting
+              ECAM-TS · Event- and Context-Aware Time-Series Forecasting
             </div>
             <p className="text-[11px] text-slate-500">
               Author: Arafat Said (arafat.said@northsouth.edu) • North South University
@@ -238,13 +238,13 @@ export default function App() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 font-mono text-[11px]">
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-              Data mode: Simulated demo in legacy tabs
+              Data: source-backed baseline module
             </span>
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
               Weights: Heuristic preview—not fitted
             </span>
             <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded border border-purple-200 font-semibold">
-              Research status: Not validated
+              Full ECAM-TS: not yet validated
             </span>
           </div>
         </div>
