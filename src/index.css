@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { background: #f8fafc; }
+  :focus-visible { outline: 2px solid #22d3ee; outline-offset: 3px; }
+}
+@keyframes ecam-orbit-spin { from { transform: rotate(0deg) rotateX(58deg); } to { transform: rotate(360deg) rotateX(58deg); } }
+@keyframes ecam-orbit-reverse { from { transform: rotate(360deg) rotateX(58deg); } to { transform: rotate(0deg) rotateX(58deg); } }
+@keyframes ecam-float { 0%, 100% { transform: translate3d(0,0,0); } 50% { transform: translate3d(0,-8px,0); } }
+.ecam-grid {
+  background-image: linear-gradient(rgba(148,163,184,.11) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.11) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 92%);
+}
+.ecam-hero-glow { animation: ecam-float 8s ease-in-out infinite; }
+.ecam-orbit-card { transform-style: preserve-3d; animation: ecam-float 8s ease-in-out infinite; }
+.ecam-orbit { transform-style: preserve-3d; }
+.ecam-orbit-one { animation: ecam-orbit-spin 22s linear infinite; }
+.ecam-orbit-two { animation: ecam-orbit-reverse 28s linear infinite; }
+.ecam-orbit-three { animation: ecam-orbit-spin 36s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .ecam-hero-glow, .ecam-orbit-card, .ecam-orbit-one, .ecam-orbit-two, .ecam-orbit-three { animation: none !important; }
+}
