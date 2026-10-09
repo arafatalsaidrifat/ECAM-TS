@@ -93,6 +93,39 @@ export default function App() {
         setSelectedDomain={handleDomainChange}
       />
 
+      <section className="ecam-hero">
+        <div className="ecam-hero-inner">
+          <motion.div className="ecam-hero-copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55, ease: 'easeOut' }}>
+            <div className="ecam-eyebrow"><span className="ecam-eyebrow-line" /> TIME-SERIES RESEARCH · MADE REPRODUCIBLE</div>
+            <h2>From raw signals<br /><span>to defensible forecasts.</span></h2>
+            <p>Inspect real observations, compare transparent baselines, and build toward event-aware adaptive model selection—with the evidence trail visible at every step.</p>
+            <div className="ecam-hero-actions">
+              <button type="button" className="ecam-primary-action" onClick={() => setCurrentTab('data-intake')}>Open research workbench <ArrowRight size={16} /></button>
+              <button type="button" className="ecam-secondary-action" onClick={() => setCurrentTab('cadence-audit')}>Explore data audit</button>
+            </div>
+            <div className="ecam-hero-proof">
+              <span><CheckCircle2 size={14} /> Source provenance</span>
+              <span><CheckCircle2 size={14} /> Chronological evaluation</span>
+              <span><ShieldCheck size={14} /> Honest status labels</span>
+            </div>
+          </motion.div>
+          <motion.div className="ecam-hero-visual" initial={{ opacity: 0, scale: .92, rotateY: -10 }} animate={{ opacity: 1, scale: 1, rotateY: 0 }} transition={{ duration: .8, delay: .08, ease: 'easeOut' }} aria-label="Abstract three-dimensional time-series visualization">
+            <div className="ecam-orb-grid" />
+            <div className="ecam-orb-halo" />
+            <div className="ecam-orb">
+              <div className="ecam-orb-core"><Activity size={38} strokeWidth={1.4} /></div>
+              <div className="ecam-orb-ring ring-one" />
+              <div className="ecam-orb-ring ring-two" />
+              <div className="ecam-orb-ring ring-three" />
+              <span className="ecam-orb-node node-a" /><span className="ecam-orb-node node-b" /><span className="ecam-orb-node node-c" />
+            </div>
+            <div className="ecam-visual-tag tag-top"><span className="tag-dot" /> LIVE DATA PATH <strong>01 / INTAKE</strong></div>
+            <div className="ecam-visual-tag tag-bottom"><span className="tag-wave">∿</span><span>Forecast horizon<br /><strong>Rolling origin</strong></span><span className="tag-mini-bars"><i /><i /><i /><i /><i /></span></div>
+            <div className="ecam-visual-caption">ECAM / SYSTEM MAP <span>INTERACTIVE PROTOTYPE</span></div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Clearly marked illustrative presets, not a source-data model run. */}
       <section className="ecam-scenario-bar border-b py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
