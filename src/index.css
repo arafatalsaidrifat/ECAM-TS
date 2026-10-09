@@ -170,3 +170,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .ecam-app .ecam-scenario-bar button.bg-blue-600:hover { filter:brightness(1.05); }
 .ecam-app .ecam-visual-tag .tag-dot { background:var(--ecam-domain-bright); box-shadow:0 0 14px var(--ecam-domain-glow); }
 .ecam-app .ecam-visual-tag strong { color:var(--ecam-domain-bright); }
+
+/* Optional low-power, domain-colored WebGL ambience. CSS gradients remain the fallback. */
+.ecam-fluid-canvas { position:absolute; inset:0; z-index:0; display:block; width:100%; height:100%; opacity:.62; pointer-events:none; }
+.ecam-hero::before { z-index:1; }
+.ecam-hero-inner { z-index:2; }
+.ecam-fluid-canvas[data-fallback="true"] { display:none; }
+@media (prefers-reduced-motion: reduce) {
+  .ecam-fluid-canvas { opacity:.32; }
+}
