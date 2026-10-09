@@ -126,8 +126,10 @@ export const FluidGradientCanvas: React.FC<{ domain: DomainCode }> = ({ domain }
         canvas.width = Math.max(1, Math.floor(rect.width * pixelScale));
         canvas.height = Math.max(1, Math.floor(rect.height * pixelScale));
         gl?.viewport(0, 0, canvas.width, canvas.height);
-        const resolution = gl?.getUniformLocation(program, 'u_resolution');
-        if (resolution) gl?.uniform2f(resolution, canvas.width, canvas.height);
+        if (gl && program) {
+          const resolution = gl.getUniformLocation(program, 'u_resolution');
+          if (resolution) gl.uniform2f(resolution, canvas.width, canvas.height);
+        }
         if (pointerX === 0 && pointerY === 0) {
           pointerX = canvas.width * 0.68;
           pointerY = canvas.height * 0.55;
