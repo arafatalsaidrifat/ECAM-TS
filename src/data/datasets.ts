@@ -17,7 +17,7 @@ export const DATASET_REGISTRY: Record<string, DatasetMetadata> = {
     baselineThreshold: 13500, // Available Grid Generation Capacity
     thresholdLabel: 'Nominal Grid Generation Capacity',
     description:
-      'Dataset description based on the Mendeley record: hourly national generation, recorded demand, estimated load-shedding and fuel/import fields scraped from PGCB's public ERP portal. Recorded demand is not true latent demand during outages. Weather is not guaranteed to be part of this file and must be joined from a separate source only after timestamp and availability checks. All values shown in this demo are synthetic until a source file is loaded.',
+      'Dataset description based on the Mendeley record: hourly national generation, recorded demand, estimated load-shedding and fuel/import fields scraped from PGCB\'s public ERP portal. Recorded demand is not true latent demand during outages. Weather is not guaranteed to be part of this file and must be joined from a separate source only after timestamp and availability checks. All values shown in this demo are synthetic until a source file is loaded.',
     covariates: [
       'Past load/demand lags from the verified source field',
       'Calendar/festival features joined from a versioned calendar',
