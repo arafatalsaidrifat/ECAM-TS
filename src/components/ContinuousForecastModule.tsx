@@ -115,11 +115,10 @@ export const ContinuousForecastModule: React.FC<ContinuousForecastModuleProps> =
               </span>
             </div>
             <h2 className="text-xl font-bold text-slate-900 mt-1">
-              Continuous Point Trajectory & Non-Parametric Quantile Envelopes
+              Preset Scenario Trajectory (Illustrative Simulation)
             </h2>
             <p className="text-sm text-slate-600 mt-1 max-w-3xl">
-              Generates multi-horizon continuous regression ŷ_final(d,i,h) with 10th-90th percentile prediction intervals [q0.10, q0.90].
-              Forecasts are directly coupled to real-time operational capacity metrics.
+              This legacy panel visualizes a synthetic preset scenario and its illustrative uncertainty band. For forecasts and errors measured from your uploaded dataset, use Real CSV Forecast Lab.
             </p>
           </div>
 

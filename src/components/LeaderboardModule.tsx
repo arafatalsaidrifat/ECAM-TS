@@ -63,17 +63,16 @@ export const LeaderboardModule: React.FC<LeaderboardModuleProps> = ({ selectedDo
               </span>
             </div>
             <h2 className="text-xl font-bold text-slate-900 mt-1">
-              Out-of-Fold Rolling-Origin Benchmark Leaderboard
+              Candidate Model Pool (Illustrative Reference Values)
             </h2>
             <p className="text-sm text-slate-600 mt-1 max-w-3xl">
-              Cross-origin evaluation spanning classical statistical forecasters (ARIMA, ETS), supervised gradient trees (LightGBM),
-              zero-shot foundation models (TimesFM, Chronos, Moirai), and combination ensembles.
+              This legacy screen displays static scenario reference values, not measured CSV results. Upload data in Real CSV Forecast Lab to compute actual rolling-origin metrics.
             </p>
           </div>
 
           <div className="inline-flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-xs">
             <span className="font-semibold text-slate-700">Protocol:</span>
-            <span className="font-mono text-slate-600">Rolling-Origin Holdout (V=50)</span>
+            <span className="font-mono text-slate-600">Static reference values</span>
           </div>
         </div>
 
@@ -233,10 +232,10 @@ export const LeaderboardModule: React.FC<LeaderboardModuleProps> = ({ selectedDo
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Zap className="w-4 h-4 text-amber-500" />
-              Accuracy vs Inference Latency Pareto Frontier (Table 2 Empirical Trade-off)
+              Reference Accuracy vs Inference Latency (Illustrative Only)
             </h3>
             <p className="text-xs text-slate-600 mt-0.5">
-              Displays why ECAM-TS combines fast supervised trees (~2.5ms) with zero-shot foundation models (~145ms) without incurring prohibitive latency.
+              Static literature-planning reference only. These latency values are not measured on your CSV or on this device.
             </p>
           </div>
         </div>
@@ -289,7 +288,7 @@ export const LeaderboardModule: React.FC<LeaderboardModuleProps> = ({ selectedDo
           <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
           <div>
             <span className="font-bold text-slate-900">Faculty Defense Insight: </span>
-            While TimesFM (282.0 MW MAE) and Chronos-Bolt (295.4 MW MAE) achieve commendable zero-shot performance, their inference latencies (145ms and 38.2ms) are 15x to 58x higher than supervised gradient-boosted trees (2.5ms). The ECAM-TS meta-router achieves the Pareto-optimal position (245.2 MW MAE at 8.2ms), outperforming all standalone forecasters while maintaining real-time operational feasibility for rolling dispatch grids.
+            The values displayed on this legacy screen are preset illustrative values, not a reproducible benchmark. Use Real CSV Forecast Lab for measured errors on uploaded observations. This app does not currently run TimesFM, Chronos, Moirai, or LightGBM on that page.
           </div>
         </div>
       </div>

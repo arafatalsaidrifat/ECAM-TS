@@ -21,10 +21,11 @@ import { AblationEngineModule } from './components/AblationEngineModule';
 import { StressTestingDiagnosticsModule } from './components/StressTestingDiagnosticsModule';
 import { FacultyDefenseInquiryModule } from './components/FacultyDefenseInquiryModule';
 import { LiteratureModule } from './components/LiteratureModule';
+import { RealDataForecastModule } from './components/RealDataForecastModule';
 import { ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<string>('continuous-forecast');
+  const [currentTab, setCurrentTab] = useState<string>('real-csv-forecast');
   const [selectedDomain, setSelectedDomain] = useState<DomainCode>('BD-ELEC-H');
 
   const [selectedScenario, setSelectedScenario] = useState<ForecastScenario>(
@@ -92,6 +93,7 @@ export default function App() {
       />
 
       {/* Quick-Try Example Bar (Science UI Standard) */}
+      {currentTab !== 'real-csv-forecast' && (
       <section className="bg-white border-b border-slate-200/80 py-2.5 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
@@ -134,9 +136,20 @@ export default function App() {
           </div>
         </div>
       </section>
+      )}
+
+      {currentTab !== 'real-csv-forecast' && (
+        <section className="mx-auto mt-4 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950">
+            <strong>Simulation mode:</strong> preset series, router weights, and reference leaderboard values on this screen are illustrative—not measurements from your CSV. Use <strong>Real CSV Forecast Lab</strong> for actual rolling-origin model evaluation.
+          </div>
+        </section>
+      )}
 
       {/* Main Scientific Workbench Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {currentTab === 'real-csv-forecast' && <RealDataForecastModule />}
+
         {currentTab === 'cadence-audit' && (
           <DatasetAuditModule
             selectedDomain={selectedDomain}
@@ -223,7 +236,7 @@ export default function App() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 font-mono text-[11px]">
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-              Protocol: Rolling-Origin (V=50)
+              Protocol: CSV rolling-origin
             </span>
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
               Simplex: Σ w_m = 1.000

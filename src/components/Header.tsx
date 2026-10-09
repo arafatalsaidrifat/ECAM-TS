@@ -1,7 +1,7 @@
 import React from 'react';
 import { DomainCode } from '../types';
 import { DATASET_REGISTRY } from '../data/datasets';
-import { ShieldCheck, Activity, Cpu, Database, BookOpen, HelpCircle } from 'lucide-react';
+import { ShieldCheck, Activity, Cpu, Database, BookOpen, HelpCircle, FileSpreadsheet } from 'lucide-react';
 
 interface HeaderProps {
   currentTab: string;
@@ -19,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   const currentDataset = DATASET_REGISTRY[selectedDomain];
 
   const tabs = [
+    { id: 'real-csv-forecast', label: '0. Real CSV Forecast Lab', icon: FileSpreadsheet },
     { id: 'cadence-audit', label: '1. Dataset & Cadence Audit', icon: Database },
     { id: 'leaderboard', label: '2. Baseline & TSFM Benchmark', icon: Activity },
     { id: 'routing-weights', label: '3. Context Router & Weights', icon: Cpu },
@@ -39,11 +40,11 @@ export const Header: React.FC<HeaderProps> = ({
               ECAM-TS
             </span>
             <span className="text-xs font-mono text-slate-500">
-              v1.4-Defense-Audited
+              v2.0-Real-Data-Engine
             </span>
             <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Anti-Leakage Guaranteed (t_avail ≤ t_origin)
+              CSV lab checks chronological rolling origins
             </span>
           </div>
           <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mt-1">
