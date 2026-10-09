@@ -126,9 +126,9 @@ export const DataIntakeLabModule: React.FC = () => {
     setSourceLabel(label);
     setSourceUrl(url);
     setSourceNote(note);
-    setTimestamp(dateCol ?? nextColumns.find(column => /date|time|timestamp|datetime/i.test(column)) ?? '');
-    const numberCol = targetCol ?? nextColumns.find(column => nextRows.slice(0, 100).some(row => Number.isFinite(numberValue(row[column])))) ?? '';
-    setTarget(numberCol);
+    setTimestamp(dateCol ?? nextColumns.find(isDateColumn) ?? '');
+    // Never silently select a numeric metadata field as the forecast target.
+    setTarget(targetCol ?? '');
     setRetrievedAt(retrieved ?? new Date().toISOString());
     setHorizon(kind === 'nasa' ? 7 : 24);
     setPeriod(kind === 'nasa' ? 7 : 24);
@@ -338,8 +338,8 @@ export const DataIntakeLabModule: React.FC = () => {
                 <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {[
                     ['Raw rows', audit.rows.toLocaleString()],
-                    ['Valid target rows', audit.valid.toLocaleString()],
-                    ['Missing / nonnumeric', audit.missingTarget.toLocaleString()],
+                    ['Valid target rows', target ? audit.valid.toLocaleString() : 'Choose target'],
+                    ['Missing / nonnumeric', target ? audit.missingTarget.toLocaleString() : 'Choose target'],
                     ['Timestamp parse failures', timestamp ? audit.timestampParseFailures.toLocaleString() : 'n/a'],
                     ['Duplicate timestamps', timestamp ? audit.duplicateTimestamps.toLocaleString() : 'n/a'],
                     ['Inferred cadence', audit.cadence],
