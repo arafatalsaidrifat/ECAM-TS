@@ -201,7 +201,19 @@ export default function App() {
           <motion.div key={currentTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.18 }}>
             {currentTab === 'real-csv-forecast' && <RealDataForecastModule />}
             {currentTab === 'system-overview' && <SystemOverviewModule selectedDomain={selectedDomain} navigateToTab={setCurrentTab} />}
-            {currentTab === 'data-intake' && <DataIntakeLabModule selectedDomain={selectedDomain} />}
+            {currentTab === 'data-intake' && (
+              <>
+                <RealDataForecastModule />
+                <details className="mt-8 rounded-2xl border border-slate-700/60 bg-slate-950/30 p-5">
+                  <summary className="cursor-pointer select-none text-sm font-semibold text-slate-200">
+                    Original data intake tools — NASA POWER, source downloads and advisory
+                  </summary>
+                  <div className="mt-5">
+                    <DataIntakeLabModule selectedDomain={selectedDomain} />
+                  </div>
+                </details>
+              </>
+            )}
             {currentTab === 'source-registry' && <SourceRegistryModule selectedDomain={selectedDomain} navigateToTab={setCurrentTab} />}
         {currentTab === 'cadence-audit' && (
           <DatasetAuditModule
