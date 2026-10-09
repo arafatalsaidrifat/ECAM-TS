@@ -72,18 +72,23 @@ export function runForecastStudy(values: number[], horizon: number, period: numb
   if (!Number.isInteger(horizon) || horizon < 1 || !Number.isInteger(period) || period < 1) throw new Error('Horizon and seasonal period must be positive integers.');
   const holdoutSize = horizon;
   const developmentSize = values.length - holdoutSize;
-  const minimumTrain = Math.max(8, period > 1 ? Math.min(period * 2, Math.floor(developmentSize * 0.45)) : 8);
-  if (developmentSize < minimumTrain + horizon * 2) {
-    throw new Error('Not enough data for a separate final holdout plus at least two development validation windows. Reduce the horizon/seasonal period or load a longer series.');
+  // Require a full seasonal cycle in every training fold when seasonality is enabled.
+  // The final horizon is separate, so development needs two additional validation windows.
+  const minimumTrain = Math.max(8, period > 1 ? period : 8);
+  const minimumRows = minimumTrain + horizon * 3;
+  if (values.length < minimumRows) {
+    throw new Error(`Not enough observations for this setup. Need at least ${minimumRows} valid rows for a ${horizon}-step horizon, seasonal period ${period}, two non-overlapping validation folds and a separate final holdout; currently have ${values.length}. Reduce the horizon/seasonal period or load more observations.`);
   }
   const development = values.slice(0, developmentSize);
   const holdoutActual = values.slice(developmentSize);
   const latestOrigin = development.length - horizon;
-  const earliestOrigin = Math.max(minimumTrain, Math.floor(development.length * 0.5));
+  const earliestOrigin = minimumTrain;
   const origins: number[] = [];
-  const stride = Math.max(horizon, Math.floor((latestOrigin - earliestOrigin) / Math.max(1, maxFolds - 1)));
-  for (let origin = earliestOrigin; origin <= latestOrigin && origins.length < maxFolds; origin += stride) origins.push(origin);
-  if (origins.length < 2) throw new Error('Could not form at least two chronological development folds for this horizon.');
+  // Each fold validates the next horizon-sized block; validation windows cannot overlap.
+  for (let origin = earliestOrigin; origin <= latestOrigin && origins.length < maxFolds; origin += horizon) origins.push(origin);
+  if (origins.length < 2) {
+    throw new Error(`Could not form two non-overlapping validation folds. Need at least ${minimumRows} valid observations for the current horizon and seasonal period.`);
+  }
 
   const cvByStrategy = new Map<ForecastStrategy, { actual: number[]; predicted: number[]; scales: Array<number | null> }>();
   for (const method of STRATEGIES) {
