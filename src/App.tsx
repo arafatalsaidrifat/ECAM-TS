@@ -137,6 +137,7 @@ export default function App() {
       </section>
 
       {currentTab !== 'system-overview' && (
+      <>
       {/* Clearly marked illustrative presets, not a source-data model run. */}
       <section className="ecam-scenario-bar border-b py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -180,6 +181,7 @@ export default function App() {
           </div>
         </div>
       </section>
+      </>
       )}
 
       {/* Data integrity notice. Existing scenario modules remain simulated until real training runs are wired in. */}
