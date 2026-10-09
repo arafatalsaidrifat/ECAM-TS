@@ -24,3 +24,19 @@ Persist dataset cards, source artifacts, environment lockfile, experiment config
 - The World Bank real-time food-price series is modeled/imputed and revised; snapshot version is part of the experiment.
 - Current source simulator metrics and routing outputs are not empirical evidence.
 
+## Immediate UI and repository polish completed
+
+- Added a searchable **Data sources** page covering the four current research domains and cross-domain benchmarks.
+- Source states distinguish the implemented NASA POWER request route from source candidates, manual downloads, and benchmarks. The UI explains what must be verified for each provider.
+- Replaced “live data path” language on the synthetic hero visualization, marked static leaderboard values as illustrative placeholders, and reframed scenario actions as simulation-only.
+- Added regression coverage for the source registry categories and exact domain accent palette.
+- Recorded the full project requirements in `docs/ECAM_TS_MASTER_SPECIFICATION.md`.
+
+## Next executable milestone (keep the research honest)
+1. Test the NASA POWER route against a small date range, then persist the successful response as a fixture with query URL, retrieval timestamp, and SHA-256. Treat a provider outage as a visible failure, not a build failure.
+2. Add an in-repository small synthetic CSV fixture strictly for smoke tests, labeled synthetic; it must never be mixed with local empirical evidence.
+3. Refactor the five browser-baseline strategies behind a shared evaluation contract and export per-fold origins/predictions in addition to summary metrics.
+4. Add statistical baselines and one supervised tree model in the research Python/Colab path. Run a leakage-specific test with identical origin/horizon information for every candidate.
+5. Add the first compatible foundation-model adapter only after package/checkpoint/license/hardware compatibility is documented, then keep its results out of the legacy static leaderboard until measured on the same folds.
+6. Implement the learned router using out-of-fold forecasts; compare best-single, equal-weight average, regularized stacking, and context-aware routing on outer holdouts.
+7. Add residual monitoring and champion/challenger promotion gates only after forecasts are persisted with versioned data/model metadata.
