@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   DomainCode,
   AblationSettings,
@@ -23,10 +23,16 @@ import { FacultyDefenseInquiryModule } from './components/FacultyDefenseInquiryM
 import { LiteratureModule } from './components/LiteratureModule';
 import { AnimatePresence, motion } from 'motion/react';
 import { DataIntakeLabModule } from './components/DataIntakeLabModule';
+import { ResearchRoadmapModule } from './components/ResearchRoadmapModule';
 import { Activity, ArrowRight, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('data-intake');
+  const didNavigate = useRef(false);
+  useEffect(() => {
+    if (!didNavigate.current) { didNavigate.current = true; return; }
+    document.getElementById('workbench-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [currentTab]);
   const [selectedDomain, setSelectedDomain] = useState<DomainCode>('BD-ELEC-H');
 
   const [selectedScenario, setSelectedScenario] = useState<ForecastScenario>(
@@ -100,7 +106,7 @@ export default function App() {
             <h2>From raw signals<br /><span>to defensible forecasts.</span></h2>
             <p>Inspect real observations, compare transparent baselines, and build toward event-aware adaptive model selection—with the evidence trail visible at every step.</p>
             <div className="ecam-hero-actions">
-              <button type="button" className="ecam-primary-action" onClick={() => setCurrentTab('data-intake')}>Open research workbench <ArrowRight size={16} /></button>
+              <button type="button" className="ecam-primary-action" onClick={() => { setCurrentTab('data-intake'); document.getElementById('workbench-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>Open research workbench <ArrowRight size={16} /></button>
               <button type="button" className="ecam-secondary-action" onClick={() => setCurrentTab('cadence-audit')}>Explore data audit</button>
             </div>
             <div className="ecam-hero-proof">
@@ -179,7 +185,7 @@ export default function App() {
       </div>
 
       {/* Main Scientific Workbench Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main id="workbench-view" className="ecam-workbench-main flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={currentTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.18 }}>
             {currentTab === 'data-intake' && <DataIntakeLabModule />}
@@ -253,6 +259,8 @@ export default function App() {
         {currentTab === 'scientific-literature' && (
           <LiteratureModule />
         )}
+
+        {currentTab === 'research-roadmap' && <ResearchRoadmapModule navigateToTab={setCurrentTab} />}
           </motion.div>
         </AnimatePresence>
       </main>
