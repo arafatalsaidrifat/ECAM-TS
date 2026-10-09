@@ -20,7 +20,7 @@ body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--ecam-ca
 button, input, select, textarea { font: inherit; }
 button { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; }
 button:hover:not(:disabled) { transform: translateY(-1px); }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid rgba(8,127,140,.35); outline-offset: 3px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid color-mix(in srgb,var(--ecam-domain-accent, #0d9488) 40%,transparent); outline-offset: 3px; }
 ::selection { background: rgba(78,230,207,.38); color: #10253a; }
 
 .ecam-app { min-height: 100vh; color: var(--ecam-ink); background: radial-gradient(ellipse at 88% 0%, rgba(83,211,199,.09), transparent 36rem), var(--ecam-canvas); }
@@ -163,3 +163,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media (prefers-reduced-motion: reduce) {
   .ecam-app .ecam-nav-link,.ecam-app .ecam-primary-action { transition:none; }
 }
+
+/* Prototype status is intentionally not rendered as a green "live" signal. */
+.ecam-status-dot-prototype { background:#fbbf24; box-shadow:0 0 0 4px rgba(251,191,36,.10); }
+.ecam-app .ecam-scenario-bar button.bg-blue-600 { background:var(--ecam-domain-accent)!important; border-color:color-mix(in srgb,var(--ecam-domain-accent) 75%,white)!important; color:#fff!important; }
+.ecam-app .ecam-scenario-bar button.bg-blue-600:hover { filter:brightness(1.05); }
+.ecam-app .ecam-visual-tag .tag-dot { background:var(--ecam-domain-bright); box-shadow:0 0 14px var(--ecam-domain-glow); }
+.ecam-app .ecam-visual-tag strong { color:var(--ecam-domain-bright); }
