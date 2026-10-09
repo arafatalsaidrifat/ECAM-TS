@@ -10,8 +10,9 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx --test src/lib/forecasting.test.ts src/lib/advisory.test.ts",
-    "check": "npm run lint && npm test && npm run build"
+    "test": "tsx --test src/lib/forecasting.test.ts src/lib/advisory.test.ts && npm run test:forecast",
+    "check": "npm run lint && npm test && npm run build",
+    "test:forecast": "tsx scripts/smoke-real-engine.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

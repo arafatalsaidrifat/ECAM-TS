@@ -1,7 +1,7 @@
 import React from 'react';
 import { DomainCode } from '../types';
 import { DATASET_REGISTRY } from '../data/datasets';
-import { Activity, BookOpen, Cpu, Database, HelpCircle, ShieldCheck, SlidersHorizontal, ChartNoAxesCombined, GitBranch, RadioTower } from 'lucide-react';
+import { Activity, BookOpen, Cpu, Database, HelpCircle, ShieldCheck, SlidersHorizontal, ChartNoAxesCombined, GitBranch, RadioTower, FileSpreadsheet } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface HeaderProps {
@@ -11,6 +11,7 @@ interface HeaderProps {
   setSelectedDomain: (domain: DomainCode) => void;
 }
 const tabs = [
+  { id: 'real-csv-forecast', label: 'CSV Forecast Lab', short: 'CSV Forecast', icon: FileSpreadsheet, group: 'Core' },
   { id: 'system-overview', label: 'System overview', short: 'Overview', icon: Activity, group: 'Core' },
   { id: 'data-intake', label: 'Workbench', short: 'Workbench', icon: Database, group: 'Core' },
   { id: 'source-registry', label: 'Data sources', short: 'Sources', icon: RadioTower, group: 'Core' },
