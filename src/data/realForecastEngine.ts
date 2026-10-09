@@ -500,8 +500,9 @@ export function runRollingOriginEvaluation(
   }
   const ensembleWeights = normalizedInverseErrorWeights(baseIds, baseMetrics);
   const finalBasePredictions = forecastBaseModels(values, horizon, period);
+  const finalEnsemblePredictions = weightedForecast(finalBasePredictions, ensembleWeights, horizon);
   const selectedPredictions = best.id === "adaptive_ensemble"
-    ? weightedForecast(finalBasePredictions, ensembleWeights, horizon)
+    ? finalEnsemblePredictions
     : finalBasePredictions[best.id];
 
   if (!selectedPredictions || selectedPredictions.length !== horizon) {
@@ -515,7 +516,7 @@ export function runRollingOriginEvaluation(
   const forecastPoints: ForecastPoint[] = selectedPredictions.map((prediction, index) => {
     const modelPredictions: Record<string, number> = {};
     for (const id of baseIds) modelPredictions[id] = finalBasePredictions[id][index];
-    modelPredictions.adaptive_ensemble = weightedForecast(finalBasePredictions, ensembleWeights, horizon)[index];
+    modelPredictions.adaptive_ensemble = finalEnsemblePredictions[index];
     return {
       step: index + 1,
       timestamp: futureLabels[index],

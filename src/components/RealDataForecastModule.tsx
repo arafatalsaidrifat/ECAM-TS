@@ -324,7 +324,7 @@ export const RealDataForecastModule: React.FC = () => {
   };
 
   const historyForChart = dataProfile.observations.slice(-80);
-  const chartValues = historyForChart.map((point) => point.value).concat(result ? result.forecastPoints.map((point) => point.yHat) : []);
+  const chartValues = historyForChart.map((point) => point.value).concat(result ? result.forecastPoints.flatMap((point) => [point.yHat, point.lower80, point.upper80]) : []);
   const chartMin = chartValues.length ? Math.min.apply(null, chartValues) : 0;
   const chartMax = chartValues.length ? Math.max.apply(null, chartValues) : 1;
   const chartRange = chartMax - chartMin || 1;
