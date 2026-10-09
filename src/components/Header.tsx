@@ -1,7 +1,7 @@
 import React from 'react';
 import { DomainCode } from '../types';
 import { DATASET_REGISTRY } from '../data/datasets';
-import { Activity, BookOpen, Cpu, Database, HelpCircle, ShieldCheck, SlidersHorizontal, ChartNoAxesCombined, GitBranch } from 'lucide-react';
+import { Activity, BookOpen, Cpu, Database, HelpCircle, ShieldCheck, SlidersHorizontal, ChartNoAxesCombined, GitBranch, RadioTower } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
 }
 const tabs = [
   { id: 'data-intake', label: 'Workbench', short: 'Workbench', icon: Database, group: 'Core' },
+  { id: 'source-registry', label: 'Data sources', short: 'Sources', icon: RadioTower, group: 'Core' },
   { id: 'cadence-audit', label: 'Data audit', short: 'Audit', icon: ShieldCheck, group: 'Core' },
   { id: 'leaderboard', label: 'Benchmarks', short: 'Benchmarks', icon: ChartNoAxesCombined, group: 'Models' },
   { id: 'routing-weights', label: 'Adaptive routing', short: 'Routing', icon: Cpu, group: 'Models' },
@@ -32,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, setCurrentTab, selec
           <span><strong>ECAM<span>·</span>TS</strong><small>Forecast research studio</small></span>
         </a>
         <div className="ecam-header-meta">
-          <span className="ecam-live-dot" /> <span>Research workspace</span>
+          <span className="ecam-live-dot ecam-status-dot-prototype" /> <span>Local-first prototype</span>
           <span className="ecam-meta-divider" />
           <label htmlFor="ecam-domain">Domain</label>
           <select id="ecam-domain" value={selectedDomain} onChange={event => setSelectedDomain(event.target.value as DomainCode)}>
@@ -54,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, setCurrentTab, selec
       <div className="ecam-domain-context">
         <div><span className="ecam-context-kicker">SELECTED RESEARCH DOMAIN</span><strong>{currentDataset.title}</strong></div>
         <span className="ecam-context-chip">{currentDataset.nativeCadence}</span>
-        <span className="ecam-context-status"><ShieldCheck size={14} /> Baselines only · empirical results pending</span>
+        <span className="ecam-context-status"><ShieldCheck size={14} /> Scenario pages are illustrative · source-backed evaluation is in Workbench</span>
       </div>
     </header>
   );
