@@ -25,6 +25,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { DataIntakeLabModule } from './components/DataIntakeLabModule';
 import { ResearchRoadmapModule } from './components/ResearchRoadmapModule';
 import { SourceRegistryModule } from './components/SourceRegistryModule';
+import { FluidGradientCanvas } from './components/FluidGradientCanvas';
 import { Activity, ArrowRight, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
@@ -101,6 +102,7 @@ export default function App() {
       />
 
       <section className="ecam-hero">
+        <FluidGradientCanvas domain={selectedDomain} />
         <div className="ecam-hero-inner">
           <motion.div className="ecam-hero-copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55, ease: 'easeOut' }}>
             <div className="ecam-eyebrow"><span className="ecam-eyebrow-line" /> TIME-SERIES RESEARCH · MADE REPRODUCIBLE</div>
