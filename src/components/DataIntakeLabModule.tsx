@@ -131,7 +131,6 @@ export const DataIntakeLabModule: React.FC = () => {
     setSourceNote(note);
     setSourceVersion('');
     setSourceLicense('');
-    setFileChecksum('');
     setTimestamp(dateCol ?? nextColumns.find(isDateColumn) ?? '');
     // Never silently select a numeric metadata field as the forecast target.
     setTarget(targetCol ?? '');
@@ -144,6 +143,9 @@ export const DataIntakeLabModule: React.FC = () => {
   async function fetchNasaPower() {
     setLoading(true);
     setMessage(null);
+    setFileChecksum('');
+    setSourceVersion('');
+    setSourceLicense('');
     try {
       if (!startDate || !endDate || startDate > endDate) throw new Error('Choose a valid start date that is on or before the end date.');
       const qs = new URLSearchParams({ start: startDate.replace(/-/g, ''), end: endDate.replace(/-/g, '') });
