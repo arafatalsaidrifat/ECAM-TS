@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DomainCode, CandidateModel } from '../types';
 import { MODEL_CANDIDATE_POOL } from '../data/datasets';
-import { Activity, Zap, Award, ArrowUpDown, Info, CheckCircle2 } from 'lucide-react';
+import { Activity, Zap, Award, ArrowUpDown, Info, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 interface LeaderboardModuleProps {
   selectedDomain: DomainCode;
@@ -59,24 +59,27 @@ export const LeaderboardModule: React.FC<LeaderboardModuleProps> = ({ selectedDo
                 <Activity className="w-4 h-4" />
               </span>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-                MODULE 2: STANDALONE BASELINE & FOUNDATION MODEL BENCHMARK
+                MODEL CANDIDATE REGISTRY · LEGACY PREVIEW
               </span>
             </div>
             <h2 className="text-xl font-bold text-slate-900 mt-1">
-              Out-of-Fold Rolling-Origin Benchmark Leaderboard
+              Candidate Model Comparison Preview
             </h2>
             <p className="text-sm text-slate-600 mt-1 max-w-3xl">
-              Cross-origin evaluation spanning classical statistical forecasters (ARIMA, ETS), supervised gradient trees (LightGBM),
-              zero-shot foundation models (TimesFM, Chronos, Moirai), and combination ensembles.
+              Candidate families include statistical forecasters, supervised trees, time-series foundation models, and combinations. The model rows and metric values below are legacy illustrative placeholders—not outputs from the current user's uploaded dataset or a verified benchmark run.
             </p>
           </div>
 
           <div className="inline-flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-xs">
             <span className="font-semibold text-slate-700">Protocol:</span>
-            <span className="font-mono text-slate-600">Rolling-Origin Holdout (V=50)</span>
+            <span className="font-mono text-slate-600">Illustrative metadata · not executed</span>
           </div>
         </div>
 
+        <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs leading-5 text-amber-950">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+          <div><strong>Illustrative preview only — not empirical evidence.</strong> MAE, RMSE, MASE, CRPS, latency values, rankings, and the displayed protocol counts in this legacy registry were not computed by this app from a recorded rolling-origin experiment. Do not cite or compare these figures as research results. Use the Workbench for measured baselines; model adapters and the shared experiment ledger are planned work.</div>
+        </div>
         {/* Table of Models */}
         <div className="overflow-x-auto mt-6">
           <table className="w-full text-left text-xs border-collapse">
@@ -288,8 +291,8 @@ export const LeaderboardModule: React.FC<LeaderboardModuleProps> = ({ selectedDo
         <div className="mt-5 p-3.5 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-700 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold text-slate-900">Faculty Defense Insight: </span>
-            While TimesFM (282.0 MW MAE) and Chronos-Bolt (295.4 MW MAE) achieve commendable zero-shot performance, their inference latencies (145ms and 38.2ms) are 15x to 58x higher than supervised gradient-boosted trees (2.5ms). The ECAM-TS meta-router achieves the Pareto-optimal position (245.2 MW MAE at 8.2ms), outperforming all standalone forecasters while maintaining real-time operational feasibility for rolling dispatch grids.
+            <span className="font-bold text-slate-900">Interpretation boundary: </span>
+            This card is retained for interface prototyping only. Its numbers are not the output of executed experiments, so no model can be declared the winner from this screen. A defensible comparison requires the same dataset version, feature availability, forecast origins, training cutoffs, and horizons for every candidate, plus stored fold-level predictions and measured runtimes.
           </div>
         </div>
       </div>
