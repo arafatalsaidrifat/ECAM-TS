@@ -23,7 +23,7 @@ import { FacultyDefenseInquiryModule } from './components/FacultyDefenseInquiryM
 import { LiteratureModule } from './components/LiteratureModule';
 import { AnimatePresence, motion } from 'motion/react';
 import { DataIntakeLabModule } from './components/DataIntakeLabModule';
-import { ArrowRight, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Activity, ArrowRight, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('data-intake');
