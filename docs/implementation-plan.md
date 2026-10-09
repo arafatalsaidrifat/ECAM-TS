@@ -49,3 +49,17 @@ Move large data processing and model inference from browser memory to a versione
 - Hyndman & Athanasopoulos, Forecasting: Principles and Practice, forecast accuracy and time-series cross-validation: https://otexts.robjhyndman.com/fpp3/accuracy.html
 - Cerqueira et al. (2022), Forecast evaluation for data scientists: common pitfalls and best practices: https://doi.org/10.1007/s10618-022-00894-5
 - NASA POWER daily API documentation: https://power.larc.nasa.gov/docs/services/api/temporal/daily/
+
+## Latest repository polish — 10 October 2026
+
+### Implemented in the current feature branch
+- Added a **Data sources** navigation page and a structured registry (`src/data/sourceRegistry.ts`) for operational data leads, manual downloads, the currently implemented NASA POWER request route, and research-only benchmarks.
+- Source cards describe target/frequency assumptions and the access/data-type caveats; candidate links are not represented as active connectors.
+- Added domain-aware source cards and updated the scenario navigation accent to follow the four domain tokens: electricity teal, food prices amber, weather blue, air quality violet.
+- Renamed the hero’s “live data” label to “synthetic preview” and improved source/prototype messaging.
+- The model leaderboard now warns that its static candidate metrics are placeholders, and its previous numeric “best model” claim has been removed. The operational recommendation component is identified as scenario-only; its values are not a production policy.
+- Added `docs/ECAM_TS_MASTER_SPECIFICATION.md` and `docs/source-registry.md` as the maintained project specification and source-verification protocol.
+- Added automated checks for source registry access-state distinctions, HTTPS links, and the four domain palette colors.
+
+### Current acceptance boundary
+The shared browser baseline runner and NASA POWER route remain the only implemented forecast path. The source registry is a catalogue; it does not automatically scrape every listed provider. No tree-based/foundation-model adapter, trained router, calibrated interval, recurrent retraining loop, or production orchestration should be shown as complete until it exists and passes corresponding tests.
