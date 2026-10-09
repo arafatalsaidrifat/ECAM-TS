@@ -21,10 +21,12 @@ import { AblationEngineModule } from './components/AblationEngineModule';
 import { StressTestingDiagnosticsModule } from './components/StressTestingDiagnosticsModule';
 import { FacultyDefenseInquiryModule } from './components/FacultyDefenseInquiryModule';
 import { LiteratureModule } from './components/LiteratureModule';
+import { AnimatePresence, motion } from 'motion/react';
+import { DataIntakeLabModule } from './components/DataIntakeLabModule';
 import { ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<string>('continuous-forecast');
+  const [currentTab, setCurrentTab] = useState<string>('data-intake');
   const [selectedDomain, setSelectedDomain] = useState<DomainCode>('BD-ELEC-H');
 
   const [selectedScenario, setSelectedScenario] = useState<ForecastScenario>(
@@ -135,8 +137,19 @@ export default function App() {
         </div>
       </section>
 
+      {/* Data integrity notice. Existing scenario modules remain simulated until real training runs are wired in. */}
+      <div className="mx-4 mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950 sm:mx-6 lg:mx-8">
+        <div className="mx-auto flex max-w-7xl items-start gap-2.5">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+          <p><strong>Prototype integrity notice.</strong> The existing scenario charts, fixed benchmark scores, routing weights and stress-test outputs are simulated/static demonstration values—not measured research results. Use <strong>Real Data Intake & Backtest</strong> for imported source CSVs or live NASA POWER observations. Uploads do not automatically replace the simulation in other tabs.</p>
+        </div>
+      </div>
+
       {/* Main Scientific Workbench Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={currentTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.18 }}>
+            {currentTab === 'data-intake' && <DataIntakeLabModule />}
         {currentTab === 'cadence-audit' && (
           <DatasetAuditModule
             selectedDomain={selectedDomain}
@@ -207,6 +220,8 @@ export default function App() {
         {currentTab === 'scientific-literature' && (
           <LiteratureModule />
         )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Academic Footer & Provenance Metadata */}
@@ -223,13 +238,13 @@ export default function App() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 font-mono text-[11px]">
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-              Protocol: Rolling-Origin (V=50)
+              Data mode: Simulated demo in legacy tabs
             </span>
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-              Simplex: Σ w_m = 1.000
+              Weights: Heuristic preview—not fitted
             </span>
             <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded border border-purple-200 font-semibold">
-              AI: gemini-3.1-pro-preview (HIGH)
+              Research status: Not validated
             </span>
           </div>
         </div>

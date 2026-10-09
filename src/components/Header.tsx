@@ -19,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   const currentDataset = DATASET_REGISTRY[selectedDomain];
 
   const tabs = [
+    { id: 'data-intake', label: 'Start here · Real Data Intake & Backtest', icon: Database },
     { id: 'cadence-audit', label: '1. Dataset & Cadence Audit', icon: Database },
     { id: 'leaderboard', label: '2. Baseline & TSFM Benchmark', icon: Activity },
     { id: 'routing-weights', label: '3. Context Router & Weights', icon: Cpu },
@@ -39,11 +40,11 @@ export const Header: React.FC<HeaderProps> = ({
               ECAM-TS
             </span>
             <span className="text-xs font-mono text-slate-500">
-              v1.4-Defense-Audited
+              Research Prototype
             </span>
             <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Anti-Leakage Guaranteed (t_avail ≤ t_origin)
+              Leakage controls are a protocol target—not validated yet
             </span>
           </div>
           <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mt-1">
@@ -58,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center flex-wrap gap-2">
           <div className="text-right hidden sm:block mr-2">
             <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
-              Audited Domain Pipeline
+              Selected target candidate
             </div>
             <div className="text-xs font-semibold text-slate-800">
               {currentDataset.unit} Native Cadence

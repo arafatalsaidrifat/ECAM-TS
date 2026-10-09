@@ -21,6 +21,89 @@ const ai = new GoogleGenAI({
   },
 });
 
+
+// Real source-data endpoint: NASA POWER Daily API at the fixed Dhaka study point.
+// This endpoint returns a reproducible observation series, not a BMD station record.
+app.get('/api/datasets/nasa-power', async (req, res) => {
+  const asDateDigits = (raw: unknown, fallback: string): string => {
+    const value = typeof raw === 'string' && raw.trim() ? raw.trim() : fallback;
+    if (/^\d{8}$/.test(value)) return value;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value.replace(/-/g, '');
+    return '';
+  };
+  const start = asDateDigits(req.query.start, '20150101');
+  const end = asDateDigits(req.query.end, '20251231');
+  const validDate = (value: string) => {
+    if (!/^\d{8}$/.test(value)) return false;
+    const year = Number(value.slice(0, 4));
+    const month = Number(value.slice(4, 6));
+    const day = Number(value.slice(6, 8));
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return year >= 1981 && date.getUTCFullYear() === year &&
+      date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+  };
+  if (!validDate(start) || !validDate(end) || start > end) {
+    return res.status(400).json({ error: 'Use valid start/end dates in the period supported by the UI (from 1981 onwards), with start before or equal to end.' });
+  }
+  const yearSpan = Number(end.slice(0, 4)) - Number(start.slice(0, 4));
+  if (yearSpan > 15) {
+    return res.status(400).json({ error: 'Limit a single request to at most 15 calendar years. Fetch smaller documented windows for longer studies.' });
+  }
+
+  const parameters = 'T2M,T2M_MAX,T2M_MIN,PRECTOTCORR';
+  const sourceUrl = new URL('https://power.larc.nasa.gov/api/temporal/daily/point');
+  sourceUrl.searchParams.set('parameters', parameters);
+  sourceUrl.searchParams.set('community', 'AG');
+  sourceUrl.searchParams.set('longitude', '90.4125');
+  sourceUrl.searchParams.set('latitude', '23.8103');
+  sourceUrl.searchParams.set('start', start);
+  sourceUrl.searchParams.set('end', end);
+  sourceUrl.searchParams.set('format', 'JSON');
+  sourceUrl.searchParams.set('time-standard', 'UTC');
+
+  try {
+    const upstream = await fetch(sourceUrl, {
+      headers: { 'User-Agent': 'ECAM-TS-Research-Workbench/0.2' },
+      signal: AbortSignal.timeout(40000),
+    });
+    if (!upstream.ok) {
+      return res.status(502).json({ error: 'NASA POWER returned HTTP ' + upstream.status + '. Try again later or load a downloaded source CSV.' });
+    }
+    const payload: any = await upstream.json();
+    const dataByParameter = payload?.properties?.parameter;
+    if (!dataByParameter || !dataByParameter.T2M_MAX || !dataByParameter.PRECTOTCORR) {
+      return res.status(502).json({ error: 'NASA POWER response did not include the expected daily parameters.', upstreamTitle: payload?.header?.title });
+    }
+    const dates = Object.keys(dataByParameter.T2M_MAX).sort();
+    const toValue = (value: unknown): number | null => {
+      if (value === null || value === undefined || value === '' || !Number.isFinite(Number(value))) return null;
+      const numeric = Number(value);
+      return numeric <= -900 ? null : numeric;
+    };
+    const rows = dates.map((date: string) => ({
+      date: /^\d{8}$/.test(date) ? date.slice(0, 4) + '-' + date.slice(4, 6) + '-' + date.slice(6, 8) : date,
+      T2M: toValue(dataByParameter.T2M?.[date]),
+      T2M_MAX: toValue(dataByParameter.T2M_MAX?.[date]),
+      T2M_MIN: toValue(dataByParameter.T2M_MIN?.[date]),
+      PRECTOTCORR: toValue(dataByParameter.PRECTOTCORR?.[date]),
+    }));
+    res.setHeader('Cache-Control', 'public, max-age=900');
+    return res.json({
+      source: 'NASA POWER Daily Point API',
+      sourceUrl: sourceUrl.toString(),
+      retrievedAt: new Date().toISOString(),
+      timeStandard: 'UTC',
+      point: { latitude: 23.8103, longitude: 90.4125, label: 'Dhaka study point' },
+      parameters: payload?.parameters || {},
+      rows,
+      caveat: 'NASA POWER daily gridded/reanalysis-derived weather estimates at the specified point; these are not Bangladesh Meteorological Department station measurements. For operational electricity forecasts, do not join future observed weather to a past forecast origin—use archived weather forecasts genuinely available at that origin.',
+    });
+  } catch (error: any) {
+    console.error('NASA POWER request failed:', error);
+    return res.status(502).json({ error: 'NASA POWER could not be reached. Check the server network or upload a downloaded source CSV.' });
+  }
+});
+
 // Scientific Literature Search Endpoint (Science Skill)
 // Searches Europe PMC and OpenAlex for forecasting, TSFM, and domain papers
 app.get('/api/literature/search', async (req, res) => {
