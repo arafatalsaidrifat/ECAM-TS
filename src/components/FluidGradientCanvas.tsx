@@ -180,22 +180,24 @@ export const FluidGradientCanvas: React.FC<{ domain: DomainCode }> = ({ domain }
           start();
         }
       };
+      const motionChange = () => {
+        hasDrawnReducedFrame = false;
+        start();
+      };
+      const contextLost = (event: Event) => {
+        event.preventDefault();
+        if (frame) window.cancelAnimationFrame(frame);
+        frame = 0;
+        canvas.dataset.fallback = 'true';
+      };
 
       resize();
       host.addEventListener('pointermove', movePointer, { passive: true });
       host.addEventListener('pointerleave', leavePointer, { passive: true });
       window.addEventListener('resize', resize, { passive: true });
       document.addEventListener('visibilitychange', visibilityChange);
-      reduceMotion.addEventListener('change', () => {
-        hasDrawnReducedFrame = false;
-        start();
-      });
-      canvas.addEventListener('webglcontextlost', event => {
-        event.preventDefault();
-        if (frame) window.cancelAnimationFrame(frame);
-        frame = 0;
-        canvas.dataset.fallback = 'true';
-      });
+      reduceMotion.addEventListener('change', motionChange);
+      canvas.addEventListener('webglcontextlost', contextLost);
       start();
 
       return () => {
@@ -205,6 +207,8 @@ export const FluidGradientCanvas: React.FC<{ domain: DomainCode }> = ({ domain }
         host.removeEventListener('pointerleave', leavePointer);
         window.removeEventListener('resize', resize);
         document.removeEventListener('visibilitychange', visibilityChange);
+        reduceMotion.removeEventListener('change', motionChange);
+        canvas.removeEventListener('webglcontextlost', contextLost);
         if (buffer) gl?.deleteBuffer(buffer);
         if (program) gl?.deleteProgram(program);
         if (vertex) gl?.deleteShader(vertex);
