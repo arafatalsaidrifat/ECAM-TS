@@ -27,3 +27,9 @@ Requires Node.js 22+ and npm. A Gemini API key is only required for the optional
 - Foundation-model adapters, tree models, learned routing, probabilistic calibration, repeated outer holdouts, persistent experiment tracking and production security remain future milestones.
 
 See [the implementation and research protocol](docs/implementation-plan.md).
+
+
+## Research navigation and proposal structure
+The **Research plan** tab provides the project milestone sequence, dataset/literature entry points, and a print-ready proposal structure at `/research-proposal.html` (use Print → Save as PDF). This is a planning edition based on the initial proposal outline, not a substitute for the supervisor-approved final PDF. Replace it when the latest approved proposal is ready.
+
+CSV uploads are parsed locally in the browser. A local upload does not create a source URL, certify a license, or prove that the file is an observation series. Select a numeric target explicitly; the baseline runner currently requires at least 16 valid observations and sufficient chronological folds. Dataset and paper links are entry points, not a guarantee that every source is public or licensed for reuse.
