@@ -3,7 +3,7 @@ import Papa from 'papaparse';
 import { forecastSeries, runForecastStudy, STRATEGIES, type ForecastMetric, type ForecastStrategy } from '../lib/forecasting';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  Activity, AlertTriangle, ArrowDownToLine, ArrowRight, CheckCircle2,
+  Activity, AlertTriangle, ArrowDownToLine, ArrowRight, CheckCircle2, Info, XCircle,
   CloudDownload, Database, FileSpreadsheet, RefreshCw, ShieldCheck, UploadCloud,
 } from 'lucide-react';
 

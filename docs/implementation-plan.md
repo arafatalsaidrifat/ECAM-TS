@@ -63,3 +63,16 @@ Move large data processing and model inference from browser memory to a versione
 
 ### Current acceptance boundary
 The shared browser baseline runner and NASA POWER route remain the only implemented forecast path. The source registry is a catalogue; it does not automatically scrape every listed provider. No tree-based/foundation-model adapter, trained router, calibrated interval, recurrent retraining loop, or production orchestration should be shown as complete until it exists and passes corresponding tests.
+
+
+## UI and advisory slice (2026-10)
+The initial tab explains the real architecture, four domain contexts, pipeline status and implemented-versus-planned boundaries. The real-data workbench generates a deterministic rule-based advisory from the baseline result and recorded source metadata. It offers domain-specific checks and guardrails, but is not an LLM action agent and makes no causal claims. Temperature percentage changes are suppressed where percentages are not meaningful for Celsius.
+
+The advisory includes the selected baseline, development CV MAE, one-block holdout MAE, target units, source import time, quality caveats, and point-only uncertainty limitations. It is not calibrated probabilistic output. Exported forecast CSV includes domain, target, unit, cadence, selection metric, CV MAE and holdout MAE.
+
+## Remaining heart-of-project work
+1. Add real model adapters with pinned model/checkpoint revisions and verified licenses and compute requirements.
+2. Evaluate baseline, tree and foundation models on identical origins, information cutoffs and horizons.
+3. Add a persistent forecast ledger to score archived predictions when actuals arrive.
+4. Add drift triggers, challenger runs, explicit promotion gates and rollback. Do not advertise autonomous self-improvement until a history-backed test exists.
+5. Add probabilistic forecasts only with tested calibration and correct quantile-loss/sample-based CRPS calculations.

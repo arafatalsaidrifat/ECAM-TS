@@ -23,13 +23,14 @@ import { FacultyDefenseInquiryModule } from './components/FacultyDefenseInquiryM
 import { LiteratureModule } from './components/LiteratureModule';
 import { AnimatePresence, motion } from 'motion/react';
 import { DataIntakeLabModule } from './components/DataIntakeLabModule';
+import { SystemOverviewModule } from './components/SystemOverviewModule';
 import { ResearchRoadmapModule } from './components/ResearchRoadmapModule';
 import { SourceRegistryModule } from './components/SourceRegistryModule';
 import { FluidGradientCanvas } from './components/FluidGradientCanvas';
 import { Activity, ArrowRight, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<string>('data-intake');
+  const [currentTab, setCurrentTab] = useState<string>('system-overview');
   const didNavigate = useRef(false);
   useEffect(() => {
     if (!didNavigate.current) { didNavigate.current = true; return; }
@@ -135,6 +136,7 @@ export default function App() {
         </div>
       </section>
 
+      {currentTab !== 'system-overview' && (
       {/* Clearly marked illustrative presets, not a source-data model run. */}
       <section className="ecam-scenario-bar border-b py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -178,6 +180,7 @@ export default function App() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Data integrity notice. Existing scenario modules remain simulated until real training runs are wired in. */}
       <div className="mx-4 mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950 sm:mx-6 lg:mx-8">
@@ -188,10 +191,11 @@ export default function App() {
       </div>
 
       {/* Main Scientific Workbench Viewport */}
-      <main id="workbench-view" className="ecam-workbench-main flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main id="workbench-view" className="ecam-workbench-main flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={currentTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.18 }}>
-            {currentTab === 'data-intake' && <DataIntakeLabModule />}
+            {currentTab === 'system-overview' && <SystemOverviewModule selectedDomain={selectedDomain} navigateToTab={setCurrentTab} />}
+            {currentTab === 'data-intake' && <DataIntakeLabModule selectedDomain={selectedDomain} />}
             {currentTab === 'source-registry' && <SourceRegistryModule selectedDomain={selectedDomain} navigateToTab={setCurrentTab} />}
         {currentTab === 'cadence-audit' && (
           <DatasetAuditModule

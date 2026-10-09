@@ -11,6 +11,7 @@ interface HeaderProps {
   setSelectedDomain: (domain: DomainCode) => void;
 }
 const tabs = [
+  { id: 'system-overview', label: 'System overview', short: 'Overview', icon: Activity, group: 'Core' },
   { id: 'data-intake', label: 'Workbench', short: 'Workbench', icon: Database, group: 'Core' },
   { id: 'source-registry', label: 'Data sources', short: 'Sources', icon: RadioTower, group: 'Core' },
   { id: 'cadence-audit', label: 'Data audit', short: 'Audit', icon: ShieldCheck, group: 'Core' },

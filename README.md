@@ -2,7 +2,7 @@
 
 **Research identity:** Event- and Context-Aware Adaptive Model Selection for Multi-Domain Time-Series Forecasting.
 
-Interactive research prototype for **Event- and Context-Aware Adaptive Model Selection for Multi-Domain Time-Series Forecasting**.
+A responsive research workbench for **Event- and Context-Aware Adaptive Model Selection for Multi-Domain Time-Series Forecasting**. Start at **System overview** for the plain-English architecture and implementation-status map; use **Workbench** to import observations, audit timestamps, compare baselines, and generate a domain-aware advisory.
 
 ## Product and scientific status — read before interpreting outputs
 The legacy scenario screens (historical scenario plots, fixed leaderboard metrics, heuristic router weights, stress tests and operational summaries) still use synthetic or static demonstration values. They are not validated research results and must not be cited as benchmark scores.
@@ -18,7 +18,7 @@ Requires Node.js 22+ and npm. A Gemini API key is only required for the optional
 
 ## Validation
 - `npm run lint` — TypeScript checks.
-- `npm test` — unit tests for the forecasting utility.
+- `npm test` — forecasting and source/reporting unit tests.
 - `npm run build` — Vite production build.
 - `npm run check` — runs all three checks sequentially.
 
@@ -50,3 +50,10 @@ The active domain accent follows the four research domains: electricity teal (`#
 - **Planned:** trained tree-model and foundation-model adapters, leakage-safe shared out-of-fold prediction storage, trained model routing, calibration/interval validation, source-specific scheduled refresh, drift-triggered champion/challenger promotion, production persistence and auth.
 
 The master specification defines the intended end state and acceptance gates. A green build/test run only validates the implemented code paths; it does not validate the research hypothesis or forecast quality.
+
+
+## Implementation truth table
+- **Implemented:** local CSV intake with checksum, explicit target selection, NASA POWER daily point retrieval, baseline comparison, final chronological holdout, forecast CSV export, source catalogue, and deterministic domain-aware decision support.
+- **Partial:** source-registry metadata and forecast interpretation; source availability and terms are not automatically certified.
+- **Not implemented:** Chronos/TimesFM/Moirai adapters, calibrated probabilistic forecasts, persistent incoming-actual ledger, scheduled drift monitoring, autonomous retraining, champion–challenger promotion, and production auth/jobs.
+- The four-domain colors identify the UI context; they do not mean every source is connected or every domain model is trained.
