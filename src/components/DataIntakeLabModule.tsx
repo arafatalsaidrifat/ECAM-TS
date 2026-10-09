@@ -99,6 +99,9 @@ export const DataIntakeLabModule: React.FC = () => {
   const [sourceLabel, setSourceLabel] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
   const [sourceNote, setSourceNote] = useState('');
+  const [sourceVersion, setSourceVersion] = useState('');
+  const [sourceLicense, setSourceLicense] = useState('');
+  const [fileChecksum, setFileChecksum] = useState('');
   const [retrievedAt, setRetrievedAt] = useState('');
   const [startDate, setStartDate] = useState('2015-01-01');
   const [endDate, setEndDate] = useState('2025-12-31');
@@ -126,6 +129,9 @@ export const DataIntakeLabModule: React.FC = () => {
     setSourceLabel(label);
     setSourceUrl(url);
     setSourceNote(note);
+    setSourceVersion('');
+    setSourceLicense('');
+    setFileChecksum('');
     setTimestamp(dateCol ?? nextColumns.find(isDateColumn) ?? '');
     // Never silently select a numeric metadata field as the forecast target.
     setTarget(targetCol ?? '');
@@ -167,6 +173,10 @@ export const DataIntakeLabModule: React.FC = () => {
       setMessage({ kind: 'error', text: 'Browser import is limited to 50 MB. For larger archives, pre-process a documented working copy.' });
       return;
     }
+    setFileChecksum('Computing SHA-256…');
+    void file.arrayBuffer().then(buffer => crypto.subtle.digest('SHA-256', buffer)).then(digest => {
+      setFileChecksum(Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join(''));
+    }).catch(() => setFileChecksum('Unavailable in this browser context'));
     Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: 'greedy',
@@ -214,7 +224,7 @@ export const DataIntakeLabModule: React.FC = () => {
     if (!result) return;
     const method = result.rows[0]?.strategy ?? 'naive';
     const lines = [
-      ['forecast_step', 'actual', 'forecast', 'selected_method', 'selection_metric', 'horizon_steps', 'development_folds', 'holdout_size', 'source', 'retrieved_at'].join(','),
+      ['forecast_step', 'actual', 'forecast', 'selected_method', 'selection_metric', 'horizon_steps', 'development_folds', 'holdout_size', 'source', 'source_version', 'license', 'sha256', 'retrieved_at'].join(','),
       ...result.forecast.map((prediction, index) => [
         't+' + (index + 1),
         '',
@@ -225,6 +235,9 @@ export const DataIntakeLabModule: React.FC = () => {
         result.folds,
         result.study.holdoutSize,
         sourceLabel,
+        sourceVersion,
+        sourceLicense,
+        fileChecksum,
         retrievedAt,
       ].map(cell => '"' + String(cell ?? '').replace(/"/g, '""') + '"').join(',')),
     ];
@@ -294,7 +307,8 @@ export const DataIntakeLabModule: React.FC = () => {
             </div>
             <p className="mt-3 text-xs leading-5 text-slate-600">Use the <a className="font-semibold text-indigo-700 underline" href="https://data.mendeley.com/datasets/vpk8spw2mm/1" target="_blank" rel="noreferrer">Mendeley electricity download</a> or the <a className="font-semibold text-indigo-700 underline" href="https://microdata.worldbank.org/catalog/6164/data-api" target="_blank" rel="noreferrer">World Bank food-price data</a>. This component does not scrape either source page for you; upload a downloaded working copy and preserve its original file.</p>
             <input ref={inputRef} type="file" accept=".csv,text/csv" onChange={event => uploadCsv(event.target.files?.[0])} className="mt-3 block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-slate-800 hover:file:bg-slate-200" />
-            <p className="mt-2 text-[11px] text-slate-500">Max 50 MB per browser upload. For published work, record the exact source version, retrieval date, license and file checksum.</p>
+            <p className="mt-2 text-[11px] text-slate-500">Max 50 MB per browser upload. The app computes a SHA-256 checksum locally; verify the source version and license before publication.</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="text-xs font-semibold text-slate-600">Source version / release<input value={sourceVersion} onChange={event => setSourceVersion(event.target.value)} placeholder="e.g. version 1, retrieved date" className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs" /></label><label className="text-xs font-semibold text-slate-600">License / terms checked<input value={sourceLicense} onChange={event => setSourceLicense(event.target.value)} placeholder="e.g. CC BY 4.0 / see terms" className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs" /></label></div>
           </section>
 
           {rows.length > 0 && <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -353,6 +367,7 @@ export const DataIntakeLabModule: React.FC = () => {
                 <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
                   <div className="flex items-center gap-2"><Database className="h-4 w-4 text-slate-500"/><span className="text-xs font-semibold text-slate-800">Source record</span><span className="ml-auto text-[10px] text-slate-400">retrieved {retrievedAt ? new Date(retrievedAt).toLocaleString() : '—'}</span></div>
                   <p className="mt-2 break-words text-xs text-slate-600">{sourceNote}</p>
+                  <dl className="mt-3 grid gap-2 text-[10px] sm:grid-cols-2"><div className="rounded-lg bg-slate-50 p-2"><dt className="text-slate-500">Source version</dt><dd className="mt-1 break-words font-semibold text-slate-800">{sourceVersion || 'Not recorded'}</dd></div><div className="rounded-lg bg-slate-50 p-2"><dt className="text-slate-500">License / terms</dt><dd className="mt-1 break-words font-semibold text-slate-800">{sourceLicense || 'Not verified'}</dd></div><div className="rounded-lg bg-slate-50 p-2 sm:col-span-2"><dt className="text-slate-500">SHA-256 of uploaded file</dt><dd className="mt-1 break-all font-mono text-slate-700">{fileChecksum || 'Not available for this source'}</dd></div></dl>
                   {sourceUrl && /^https?:\/\//i.test(sourceUrl) && <a className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-teal-800 underline" href={sourceUrl} target="_blank" rel="noreferrer">Open exact source request <ArrowRight className="h-3 w-3"/></a>}
                   {!sourceUrl && <p className="mt-2 text-[10px] leading-4 text-slate-500">No source URL was supplied with this local upload. No browser-session link is generated; add the verified source URL to your research log.</p>}
                 </div>
@@ -387,7 +402,7 @@ export const DataIntakeLabModule: React.FC = () => {
         {rows.length > 0 && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-[10px] text-slate-500">
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-700"/>{rows.length.toLocaleString()} source rows in memory</span>
           <span className="inline-flex items-center gap-1.5"><Database className="h-3.5 w-3.5"/>{observations.length.toLocaleString()} numeric observations for {target || 'selected target'}</span>
-          <button onClick={() => { setRows([]); setColumns([]); setTarget(''); setTimestamp(''); setSourceLabel(''); setSourceUrl(''); setSourceNote(''); setRetrievedAt(''); setResult(null); setMessage({kind:'info',text:'Cleared the current in-memory dataset. Original source files were not changed.'}); if (inputRef.current) inputRef.current.value=''; }} className="ml-auto font-semibold text-slate-600 underline hover:text-slate-900">Clear current data</button>
+          <button onClick={() => { setRows([]); setColumns([]); setTarget(''); setTimestamp(''); setSourceLabel(''); setSourceUrl(''); setSourceNote(''); setSourceVersion(''); setSourceLicense(''); setFileChecksum(''); setRetrievedAt(''); setResult(null); setMessage({kind:'info',text:'Cleared the current in-memory dataset. Original source files were not changed.'}); if (inputRef.current) inputRef.current.value=''; }} className="ml-auto font-semibold text-slate-600 underline hover:text-slate-900">Clear current data</button>
         </motion.div>}
       </AnimatePresence>
     </div>
