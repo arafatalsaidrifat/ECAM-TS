@@ -185,8 +185,8 @@ export default function App() {
       </>
       )}
 
-      {currentTab !== 'real-csv-forecast' && (
       {/* Data integrity notice. Existing scenario modules remain simulated until real training runs are wired in. */}
+      {currentTab !== 'real-csv-forecast' && (
       <div className="mx-4 mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950 sm:mx-6 lg:mx-8">
         <div className="mx-auto flex max-w-7xl items-start gap-2.5">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
