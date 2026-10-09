@@ -133,3 +133,33 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 /* Keep clicked research sections clear of the sticky header during smooth navigation. */
 .ecam-workbench-main { scroll-margin-top: 210px; }
 @media (max-width: 760px) { .ecam-workbench-main { scroll-margin-top: 280px; } }
+
+
+/* Domain identity system: a consistent accent palette follows the selected research domain. */
+.ecam-app { --ecam-domain-accent: #0d9488; --ecam-domain-bright: #5eead4; --ecam-domain-soft: #ccfbf1; --ecam-domain-glow: rgba(13,148,136,.22); }
+.ecam-app[data-domain="BD-ELEC-H"] { --ecam-domain-accent:#0d9488; --ecam-domain-bright:#5eead4; --ecam-domain-soft:#ccfbf1; --ecam-domain-glow:rgba(13,148,136,.24); }
+.ecam-app[data-domain="BD-FOOD-M"] { --ecam-domain-accent:#b45309; --ecam-domain-bright:#fbbf24; --ecam-domain-soft:#fef3c7; --ecam-domain-glow:rgba(217,119,6,.24); }
+.ecam-app[data-domain="BD-WEAT-D"] { --ecam-domain-accent:#2563eb; --ecam-domain-bright:#93c5fd; --ecam-domain-soft:#dbeafe; --ecam-domain-glow:rgba(37,99,235,.24); }
+.ecam-app[data-domain="EXT-AIR-H"] { --ecam-domain-accent:#7c3aed; --ecam-domain-bright:#c4b5fd; --ecam-domain-soft:#ede9fe; --ecam-domain-glow:rgba(124,58,237,.25); }
+.ecam-app .ecam-nav-link.active { background:linear-gradient(180deg,color-mix(in srgb,var(--ecam-domain-accent) 22%,transparent),transparent); }
+.ecam-app .ecam-nav-link.active svg { color:var(--ecam-domain-bright); }
+.ecam-app .ecam-nav-indicator { background:var(--ecam-domain-bright); box-shadow:0 0 12px var(--ecam-domain-glow); }
+.ecam-app .ecam-context-chip { border-color:color-mix(in srgb,var(--ecam-domain-bright) 52%,transparent); color:var(--ecam-domain-bright); background:color-mix(in srgb,var(--ecam-domain-accent) 12%,transparent); }
+.ecam-app .ecam-context-status svg,.ecam-app .ecam-eyebrow { color:var(--ecam-domain-bright); }
+.ecam-app .ecam-orb-halo { background:radial-gradient(circle,var(--ecam-domain-glow),transparent 72%); }
+.ecam-app .ecam-orb-core { color:var(--ecam-domain-bright); border-color:color-mix(in srgb,var(--ecam-domain-bright) 55%,transparent); box-shadow:0 0 38px var(--ecam-domain-glow),inset 0 0 30px var(--ecam-domain-glow); }
+.ecam-app .ecam-orb-ring { border-color:color-mix(in srgb,var(--ecam-domain-bright) 32%,transparent); }
+.ecam-app .ecam-primary-action { border-color:color-mix(in srgb,var(--ecam-domain-bright) 75%,white); background:linear-gradient(115deg,var(--ecam-domain-bright),color-mix(in srgb,var(--ecam-domain-bright) 42%,white)); box-shadow:0 8px 26px var(--ecam-domain-glow),inset 0 1px 0 rgba(255,255,255,.8); }
+.ecam-app .ecam-primary-action:hover { box-shadow:0 12px 32px var(--ecam-domain-glow),inset 0 1px 0 rgba(255,255,255,.8); }
+/* Keep component utility accents aligned with the active domain, not only the navigation. */
+.ecam-app .text-teal-700,.ecam-app .text-teal-800 { color:var(--ecam-domain-accent)!important; }
+.ecam-app .bg-teal-700 { background-color:var(--ecam-domain-accent)!important; }
+.ecam-app .accent-teal-700 { accent-color:var(--ecam-domain-accent)!important; }
+.ecam-app .border-teal-200 { border-color:color-mix(in srgb,var(--ecam-domain-accent) 28%,white)!important; }
+.ecam-app .bg-teal-50 { background-color:color-mix(in srgb,var(--ecam-domain-soft) 55%,white)!important; }
+.ecam-app .bg-teal-100 { background-color:var(--ecam-domain-soft)!important; }
+.ecam-app .text-teal-600 { color:var(--ecam-domain-accent)!important; }
+.ecam-app .ring-teal-500 { --tw-ring-color:var(--ecam-domain-accent)!important; }
+@media (prefers-reduced-motion: reduce) {
+  .ecam-app .ecam-nav-link,.ecam-app .ecam-primary-action { transition:none; }
+}
