@@ -84,7 +84,7 @@ export default function App() {
   }, [selectedDomain, selectedScenario, ablation, stress, routerWeights, gridCapacityMW]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+    <div className="ecam-app min-h-screen flex flex-col font-sans antialiased selection:bg-teal-200 selection:text-slate-950">
       {/* Top Header & Defense Navigation */}
       <Header
         currentTab={currentTab}
@@ -94,7 +94,7 @@ export default function App() {
       />
 
       {/* Quick-Try Example Bar (Science UI Standard) */}
-      <section className="bg-white border-b border-slate-200/80 py-2.5 px-4 sm:px-6 lg:px-8">
+      <section className="ecam-scenario-bar border-b py-2.5 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] flex items-center gap-1">
@@ -225,7 +225,7 @@ export default function App() {
       </main>
 
       {/* Academic Footer & Provenance Metadata */}
-      <footer className="bg-white border-t border-slate-200 mt-12 py-6 text-xs text-slate-500">
+      <footer className="ecam-footer border-t mt-12 py-6 text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <div className="font-semibold text-slate-800">
