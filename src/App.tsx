@@ -24,6 +24,7 @@ import { LiteratureModule } from './components/LiteratureModule';
 import { AnimatePresence, motion } from 'motion/react';
 import { DataIntakeLabModule } from './components/DataIntakeLabModule';
 import { ResearchRoadmapModule } from './components/ResearchRoadmapModule';
+import { SourceRegistryModule } from './components/SourceRegistryModule';
 import { Activity, ArrowRight, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
@@ -125,7 +126,7 @@ export default function App() {
               <div className="ecam-orb-ring ring-three" />
               <span className="ecam-orb-node node-a" /><span className="ecam-orb-node node-b" /><span className="ecam-orb-node node-c" />
             </div>
-            <div className="ecam-visual-tag tag-top"><span className="tag-dot" /> LIVE DATA PATH <strong>01 / INTAKE</strong></div>
+            <div className="ecam-visual-tag tag-top"><span className="tag-dot" /> SYNTHETIC PREVIEW <strong>01 / INTAKE</strong></div>
             <div className="ecam-visual-tag tag-bottom"><span className="tag-wave">∿</span><span>Forecast horizon<br /><strong>Rolling origin</strong></span><span className="tag-mini-bars"><i /><i /><i /><i /><i /></span></div>
             <div className="ecam-visual-caption">ECAM / SYSTEM MAP <span>INTERACTIVE PROTOTYPE</span></div>
           </motion.div>
@@ -180,7 +181,7 @@ export default function App() {
       <div className="mx-4 mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950 sm:mx-6 lg:mx-8">
         <div className="mx-auto flex max-w-7xl items-start gap-2.5">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
-          <p><strong>Data integrity.</strong> Scenario charts, fixed benchmark scores, routing weights and stress-test outputs are simulated/static demonstrations—not measured research results. Use <strong>Real Data Intake & Backtest</strong> for imported source CSVs or live NASA POWER observations. Uploads do not automatically replace the simulation in other tabs.</p>
+          <p><strong>Data integrity.</strong> Scenario charts, fixed benchmark scores, routing weights and stress-test outputs are simulated/static demonstrations—not measured research results. Use <strong>Workbench</strong> for CSVs or requested NASA POWER daily weather data (gridded/reanalysis-derived, not station observations). Uploads do not automatically replace the simulation in other tabs.</p>
         </div>
       </div>
 
@@ -189,6 +190,7 @@ export default function App() {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={currentTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.18 }}>
             {currentTab === 'data-intake' && <DataIntakeLabModule />}
+            {currentTab === 'source-registry' && <SourceRegistryModule selectedDomain={selectedDomain} navigateToTab={setCurrentTab} />}
         {currentTab === 'cadence-audit' && (
           <DatasetAuditModule
             selectedDomain={selectedDomain}
