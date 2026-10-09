@@ -90,7 +90,7 @@ export default function App() {
   }, [selectedDomain, selectedScenario, ablation, stress, routerWeights, gridCapacityMW]);
 
   return (
-    <div id="top" className="ecam-app min-h-screen flex flex-col font-sans antialiased selection:bg-teal-200 selection:text-slate-950">
+    <div id="top" data-domain={selectedDomain} className="ecam-app min-h-screen flex flex-col font-sans antialiased selection:bg-teal-200 selection:text-slate-950">
       {/* Top Header & Defense Navigation */}
       <Header
         currentTab={currentTab}
