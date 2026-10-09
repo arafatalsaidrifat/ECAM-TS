@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   DomainCode,
   AblationSettings,
@@ -21,10 +21,21 @@ import { AblationEngineModule } from './components/AblationEngineModule';
 import { StressTestingDiagnosticsModule } from './components/StressTestingDiagnosticsModule';
 import { FacultyDefenseInquiryModule } from './components/FacultyDefenseInquiryModule';
 import { LiteratureModule } from './components/LiteratureModule';
-import { ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { DataIntakeLabModule } from './components/DataIntakeLabModule';
+import { SystemOverviewModule } from './components/SystemOverviewModule';
+import { ResearchRoadmapModule } from './components/ResearchRoadmapModule';
+import { SourceRegistryModule } from './components/SourceRegistryModule';
+import { FluidGradientCanvas } from './components/FluidGradientCanvas';
+import { Activity, ArrowRight, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<string>('continuous-forecast');
+  const [currentTab, setCurrentTab] = useState<string>('system-overview');
+  const didNavigate = useRef(false);
+  useEffect(() => {
+    if (!didNavigate.current) { didNavigate.current = true; return; }
+    document.getElementById('workbench-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [currentTab]);
   const [selectedDomain, setSelectedDomain] = useState<DomainCode>('BD-ELEC-H');
 
   const [selectedScenario, setSelectedScenario] = useState<ForecastScenario>(
@@ -82,7 +93,7 @@ export default function App() {
   }, [selectedDomain, selectedScenario, ablation, stress, routerWeights, gridCapacityMW]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+    <div id="top" data-domain={selectedDomain} className="ecam-app min-h-screen flex flex-col font-sans antialiased selection:bg-teal-200 selection:text-slate-950">
       {/* Top Header & Defense Navigation */}
       <Header
         currentTab={currentTab}
@@ -91,13 +102,49 @@ export default function App() {
         setSelectedDomain={handleDomainChange}
       />
 
-      {/* Quick-Try Example Bar (Science UI Standard) */}
-      <section className="bg-white border-b border-slate-200/80 py-2.5 px-4 sm:px-6 lg:px-8">
+      <section className="ecam-hero">
+        <FluidGradientCanvas domain={selectedDomain} />
+        <div className="ecam-hero-inner">
+          <motion.div className="ecam-hero-copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55, ease: 'easeOut' }}>
+            <div className="ecam-eyebrow"><span className="ecam-eyebrow-line" /> TIME-SERIES RESEARCH · MADE REPRODUCIBLE</div>
+            <h2>From raw signals<br /><span>to defensible forecasts.</span></h2>
+            <p>Inspect real observations, compare transparent baselines, and build toward event-aware adaptive model selection—with the evidence trail visible at every step.</p>
+            <div className="ecam-hero-actions">
+              <button type="button" className="ecam-primary-action" onClick={() => { setCurrentTab('data-intake'); document.getElementById('workbench-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>Open research workbench <ArrowRight size={16} /></button>
+              <button type="button" className="ecam-secondary-action" onClick={() => setCurrentTab('cadence-audit')}>Explore data audit</button>
+            </div>
+            <div className="ecam-hero-proof">
+              <span><CheckCircle2 size={14} /> Source provenance</span>
+              <span><CheckCircle2 size={14} /> Chronological evaluation</span>
+              <span><ShieldCheck size={14} /> Honest status labels</span>
+            </div>
+          </motion.div>
+          <motion.div className="ecam-hero-visual" initial={{ opacity: 0, scale: .92, rotateY: -10 }} animate={{ opacity: 1, scale: 1, rotateY: 0 }} transition={{ duration: .8, delay: .08, ease: 'easeOut' }} aria-label="Abstract three-dimensional time-series visualization">
+            <div className="ecam-orb-grid" />
+            <div className="ecam-orb-halo" />
+            <div className="ecam-orb">
+              <div className="ecam-orb-core"><Activity size={38} strokeWidth={1.4} /></div>
+              <div className="ecam-orb-ring ring-one" />
+              <div className="ecam-orb-ring ring-two" />
+              <div className="ecam-orb-ring ring-three" />
+              <span className="ecam-orb-node node-a" /><span className="ecam-orb-node node-b" /><span className="ecam-orb-node node-c" />
+            </div>
+            <div className="ecam-visual-tag tag-top"><span className="tag-dot" /> SYNTHETIC PREVIEW <strong>01 / INTAKE</strong></div>
+            <div className="ecam-visual-tag tag-bottom"><span className="tag-wave">∿</span><span>Forecast horizon<br /><strong>Rolling origin</strong></span><span className="tag-mini-bars"><i /><i /><i /><i /><i /></span></div>
+            <div className="ecam-visual-caption">ECAM / SYSTEM MAP <span>INTERACTIVE PROTOTYPE</span></div>
+          </motion.div>
+        </div>
+      </section>
+
+      {currentTab !== 'system-overview' && (
+      <>
+      {/* Clearly marked illustrative presets, not a source-data model run. */}
+      <section className="ecam-scenario-bar border-b py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] flex items-center gap-1">
-              <Play className="w-3 h-3 text-blue-600 inline" />
-              Live Defense Scenarios:
+            <span className="font-semibold uppercase tracking-wider text-[10px] flex items-center gap-1">
+              <Play className="w-3 h-3 inline" />
+              Illustrative scenarios:
             </span>
 
             {PRESET_SCENARIOS.map((scen) => {
@@ -123,9 +170,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3 font-mono text-[11px] text-slate-500">
-            <span className="flex items-center gap-1 text-emerald-700">
+            <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              Origin: {selectedScenario.originTimestamp}
+              Demo origin: {selectedScenario.originTimestamp}
             </span>
             <span className="hidden md:inline text-slate-300">|</span>
             <span className="hidden md:inline">
@@ -134,9 +181,24 @@ export default function App() {
           </div>
         </div>
       </section>
+      </>
+      )}
+
+      {/* Data integrity notice. Existing scenario modules remain simulated until real training runs are wired in. */}
+      <div className="mx-4 mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950 sm:mx-6 lg:mx-8">
+        <div className="mx-auto flex max-w-7xl items-start gap-2.5">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+          <p><strong>Data integrity.</strong> Scenario charts, fixed benchmark scores, routing weights and stress-test outputs are simulated/static demonstrations—not measured research results. Use <strong>Workbench</strong> for CSVs or requested NASA POWER daily weather data (gridded/reanalysis-derived, not station observations). Uploads do not automatically replace the simulation in other tabs.</p>
+        </div>
+      </div>
 
       {/* Main Scientific Workbench Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main id="workbench-view" className="ecam-workbench-main flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={currentTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.18 }}>
+            {currentTab === 'system-overview' && <SystemOverviewModule selectedDomain={selectedDomain} navigateToTab={setCurrentTab} />}
+            {currentTab === 'data-intake' && <DataIntakeLabModule selectedDomain={selectedDomain} />}
+            {currentTab === 'source-registry' && <SourceRegistryModule selectedDomain={selectedDomain} navigateToTab={setCurrentTab} />}
         {currentTab === 'cadence-audit' && (
           <DatasetAuditModule
             selectedDomain={selectedDomain}
@@ -207,14 +269,18 @@ export default function App() {
         {currentTab === 'scientific-literature' && (
           <LiteratureModule />
         )}
+
+        {currentTab === 'research-roadmap' && <ResearchRoadmapModule navigateToTab={setCurrentTab} />}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Academic Footer & Provenance Metadata */}
-      <footer className="bg-white border-t border-slate-200 mt-12 py-6 text-xs text-slate-500">
+      <footer className="ecam-footer border-t mt-12 py-6 text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <div className="font-semibold text-slate-800">
-              ECAM-TS: Event- and Context-Aware Multi-Domain Time-Series Forecasting
+              ECAM-TS · Event- and Context-Aware Time-Series Forecasting
             </div>
             <p className="text-[11px] text-slate-500">
               Author: Arafat Said (arafat.said@northsouth.edu) • North South University
@@ -223,13 +289,13 @@ export default function App() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 font-mono text-[11px]">
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-              Protocol: Rolling-Origin (V=50)
+              Data: source-backed baseline module
             </span>
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-              Simplex: Σ w_m = 1.000
+              Weights: Heuristic preview—not fitted
             </span>
             <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded border border-purple-200 font-semibold">
-              AI: gemini-3.1-pro-preview (HIGH)
+              Full ECAM-TS: not yet validated
             </span>
           </div>
         </div>

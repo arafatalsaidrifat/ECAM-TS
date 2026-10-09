@@ -16,7 +16,7 @@ export const OperationalDecisionBox: React.FC<OperationalDecisionBoxProps> = ({ 
 > - **Primary Metric / Peak Value**: ${summary.peakValue.toLocaleString()} ${summary.physicalUnit}
 > - **Operational Threshold / Available Capacity**: ${summary.capacityOrCeiling.toLocaleString()} ${summary.physicalUnit}
 > - **Net Operating Balance**: ${summary.netBalance > 0 ? '+' : ''}${summary.netBalance.toLocaleString()} ${summary.physicalUnit} (${summary.netBalancePct > 0 ? '+' : ''}${summary.netBalancePct}%)
-> - **Status**: ${summary.isDeficit ? 'SHORTAGE / DEFICIT DETECTED' : 'ADEQUATE BUFFER ASSURED'}
+> - **Status**: ${summary.isDeficit ? 'SHORTAGE / DEFICIT DETECTED' : 'NO THRESHOLD BREACH IN THIS SCENARIO'}
 > - **Duration**: ${summary.deficitDurationHours > 0 ? `${summary.deficitDurationHours} consecutive hours` : '0 hours (Continuous stability)'}
 > - **Actionable Domain Recommendation**: ${summary.recommendedAction}`;
 
@@ -57,7 +57,7 @@ export const OperationalDecisionBox: React.FC<OperationalDecisionBoxProps> = ({ 
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-slate-500">
-                BLOCK B: DOMAIN OPERATIONAL IMPACT DECISION
+                SIMULATION MODULE · IMPACT PREVIEW
               </span>
               <span
                 className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase ${
@@ -80,7 +80,7 @@ export const OperationalDecisionBox: React.FC<OperationalDecisionBoxProps> = ({ 
         <button
           onClick={handleCopyMarkdown}
           className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer"
-          title="Copy markdown blockquote for defense presentation"
+          title="Copy the current illustrative scenario summary"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
           <span>{copied ? 'Copied' : 'Copy MD'}</span>
@@ -127,18 +127,19 @@ export const OperationalDecisionBox: React.FC<OperationalDecisionBoxProps> = ({ 
       {/* Narrative Summary & Action Blockquote */}
       <div className="bg-white/95 rounded-lg border border-slate-200 p-3.5 space-y-2">
         <div className="text-xs text-slate-700">
-          <span className="font-semibold text-slate-900">Empirical Synthesis: </span>
+          <span className="font-semibold text-slate-900">Scenario Synthesis: </span>
           {summary.summaryText}
         </div>
 
         <div className="pt-2 border-t border-slate-100 flex items-start gap-2">
           <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
           <div className="text-xs">
-            <span className="font-bold text-slate-900">Recommended Executive Action: </span>
+            <span className="font-bold text-slate-900">Illustrative Decision Prompt: </span>
             <span className="text-slate-800 font-medium">{summary.recommendedAction}</span>
           </div>
         </div>
       </div>
+      <p className="mt-3 text-[10px] leading-4 text-slate-500">Simulation boundary: these values and action prompts are derived from the current scenario simulator, not a verified live feed, trained production model, or approved operational policy. Confirm source measurements and domain-specific rules before acting.</p>
     </div>
   );
 };

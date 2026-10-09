@@ -1,0 +1,59 @@
+# ECAM-TS Research Workbench
+
+**Research identity:** Event- and Context-Aware Adaptive Model Selection for Multi-Domain Time-Series Forecasting.
+
+A responsive research workbench for **Event- and Context-Aware Adaptive Model Selection for Multi-Domain Time-Series Forecasting**. Start at **System overview** for the plain-English architecture and implementation-status map; use **Workbench** to import observations, audit timestamps, compare baselines, and generate a domain-aware advisory.
+
+## Product and scientific status — read before interpreting outputs
+The legacy scenario screens (historical scenario plots, fixed leaderboard metrics, heuristic router weights, stress tests and operational summaries) still use synthetic or static demonstration values. They are not validated research results and must not be cited as benchmark scores.
+
+The **Workbench** view supports a NASA POWER daily-weather request route for the documented Dhaka point and CSV import for downloaded source data. It audits the selected target/timestamps, selects among transparent baseline strategies using expanding-window rolling-origin validation, evaluates them on a separate final chronological horizon, and exports the future point forecast. It currently covers five baseline/combination strategies only; it is not a complete ECAM-TS model pipeline.
+
+## Run locally
+Requires Node.js 22+ and npm. A Gemini API key is only required for the optional committee-defense endpoint.
+1. `npm install`
+2. Copy `.env.example` to `.env.local` and configure optional server secrets.
+3. `npm run dev`
+4. Open the local URL printed by Vite/tsx.
+
+## Validation
+- `npm run lint` — TypeScript checks.
+- `npm test` — forecasting and source/reporting unit tests.
+- `npm run build` — Vite production build.
+- `npm run check` — runs all three checks sequentially.
+
+## Scientific boundaries
+- Keep raw source files immutable and record the source version, license, checksum, retrieval time, units, cadence and timezone.
+- Use only information available at each forecast origin. In particular, realized future weather must not be joined to historical electricity forecasts as though it were a forecast known at the time.
+- The final horizon is kept out of baseline selection. It is one holdout block, not sufficient evidence for paper-wide claims.
+- Foundation-model adapters, tree models, learned routing, probabilistic calibration, repeated outer holdouts, persistent experiment tracking and production security remain future milestones.
+
+See the [implementation and research protocol](docs/implementation-plan.md), the [full master specification](docs/ECAM_TS_MASTER_SPECIFICATION.md), the [source registry guide](docs/source-registry.md), and the [next milestones](docs/next-milestones.md).
+
+
+## Research navigation and proposal structure
+The **Research plan** tab provides the project milestone sequence, dataset/literature entry points, and a print-ready proposal structure at `/research-proposal.html` (use Print → Save as PDF). This is a planning edition based on the initial proposal outline, not a substitute for the supervisor-approved final PDF. Replace it when the latest approved proposal is ready.
+
+CSV uploads are parsed locally in the browser. A local upload does not create a source URL, certify a license, or prove that the file is an observation series. Select a numeric target explicitly; the baseline runner currently requires at least 16 valid observations and sufficient chronological folds. Dataset and paper links are entry points, not a guarantee that every source is public or licensed for reuse.
+
+
+## Source registry and domain themes
+
+The **Data sources** tab provides an inspectable registry for Bangladesh electricity/food-price data leads, the NASA POWER route, weather and air-quality API candidates, and Monash/GIFT-Eval research benchmarks. Each record distinguishes an application adapter, a manual-download path, an unverified candidate, or a benchmark-only source. A source link is not proof of a working API; check the source notes before using it.
+
+The active domain accent follows the four research domains: electricity teal (`#0d9488`), food prices amber (`#b45309`), weather blue (`#2563eb`), and air quality violet (`#7c3aed`). These colors are UI identity tokens, not evidence about data quality.
+
+## Working versus planned components
+
+- **Implemented:** local CSV intake (browser parsing, SHA-256, explicit target choice), the NASA POWER daily-data request route, source registry UI, chronological baseline comparison, and a separate final horizon.
+- **Illustrative only:** the legacy scenario explorer, static leaderboard metric values, heuristic routing weights, stress tests, and scenario-based operational guidance. These are now marked as previews and are not measured results.
+- **Planned:** trained tree-model and foundation-model adapters, leakage-safe shared out-of-fold prediction storage, trained model routing, calibration/interval validation, source-specific scheduled refresh, drift-triggered champion/challenger promotion, production persistence and auth.
+
+The master specification defines the intended end state and acceptance gates. A green build/test run only validates the implemented code paths; it does not validate the research hypothesis or forecast quality.
+
+
+## Implementation truth table
+- **Implemented:** local CSV intake with checksum, explicit target selection, NASA POWER daily point retrieval, baseline comparison, final chronological holdout, forecast CSV export, source catalogue, and deterministic domain-aware decision support.
+- **Partial:** source-registry metadata and forecast interpretation; source availability and terms are not automatically certified.
+- **Not implemented:** Chronos/TimesFM/Moirai adapters, calibrated probabilistic forecasts, persistent incoming-actual ledger, scheduled drift monitoring, autonomous retraining, champion–challenger promotion, and production auth/jobs.
+- The four-domain colors identify the UI context; they do not mean every source is connected or every domain model is trained.

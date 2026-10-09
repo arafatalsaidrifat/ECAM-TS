@@ -12,37 +12,35 @@ export const DATASET_REGISTRY: Record<string, DatasetMetadata> = {
     forecastHorizon: '24 Hours (Next Day Dispatch) / 48 Hours',
     horizonSteps: 24,
     unit: 'MW',
-    totalTimestamps: 17520, // 2 full calendar years
-    missingRatio: 0.0034, // 0.34% missing (audited)
+    totalTimestamps: 17520, // Legacy mock-up placeholder; the current source record describes ~92k+ hours.
+    missingRatio: 0.0034, // Legacy mock-up placeholder only; recompute from the downloaded file.
     baselineThreshold: 13500, // Available Grid Generation Capacity
     thresholdLabel: 'Nominal Grid Generation Capacity',
     description:
-      'High-frequency telemetry recording national transmission load, temperature, humidity, and calendar phases across Bangladesh. Features pronounced diurnal ramps, hot-season cooling surges, and massive non-stationary lunar festival demand shifts (Ramadan, Eid-ul-Fitr, Eid-ul-Adha).',
+      'Dataset description based on the Mendeley record: hourly national generation, recorded demand, estimated load-shedding and fuel/import fields scraped from PGCB\'s public ERP portal. Recorded demand is not true latent demand during outages. Weather is not guaranteed to be part of this file and must be joined from a separate source only after timestamp and availability checks. All values shown in this demo are synthetic until a source file is loaded.',
     covariates: [
-      'Dry-Bulb Ambient Temp (°C)',
-      'Relative Humidity (%)',
-      'Cooling Degree Days (CDD 18.3°C)',
-      'Multi-Phase Lunar Festival Encodings',
-      'Industrial Working Day Flag',
+      'Past load/demand lags from the verified source field',
+      'Calendar/festival features joined from a versioned calendar',
+      'Separate weather data only after timestamp and forecast-issue-time checks',
     ],
   },
   'BD-FOOD-M': {
     code: 'BD-FOOD-M',
     title: 'Retail Staple Food Commodity Prices (110 National Markets)',
     variableName: 'Coarse Rice Retail Price (BDT/kg)',
-    scope: 'National 110-Market Panel / Bangladesh Bureau of Statistics',
+    scope: 'Bangladesh 110-market panel / World Bank modeled estimates',
     nativeCadence: 'Monthly (Calendar month aggregates)',
     sourceEndpoint: 'World Bank Microdata Catalog (BGD_2021_RTFP_v02_M)',
-    citationDOI: '10.1596/BGD-2021-RTFP-v02-M',
+    citationDOI: '10.48529/2ZH0-JF55',
     forecastHorizon: '1 Month / 3 Months Forward Outlook',
     horizonSteps: 3,
     unit: 'BDT/kg',
-    totalTimestamps: 168, // 14 years monthly
-    missingRatio: 0.0012,
+    totalTimestamps: 168, // Legacy per-series placeholder; verify selected product/market coverage from the actual panel.
+    missingRatio: 0.0012, // Legacy placeholder only; recompute from the pinned panel export.
     baselineThreshold: 65.0, // Open Market Sale (OMS) trigger ceiling
     thresholdLabel: 'Government OMS Intervention Ceiling',
     description:
-      'Macroeconomic time series capturing staple rice and lentil prices across 110 retail markets in Bangladesh. Exhibits low temporal frequency, strong harvest seasonality (Boro vs Aman crop arrivals), global fertilizer shock lags, and general inflation indices.',
+      'World Bank monthly food-price estimates for Bangladesh market/product records. The source uses modeled estimates and machine-learning-assisted imputation and can be revised; pin an exact snapshot and inspect the data dictionary before forecasting. The seasonal relationships described in the proposal are hypotheses, not prevalidated effects.',
     covariates: [
       'National Consumer Price Index (CPI)',
       'Boro/Aman Harvest Arrival Phase',
@@ -52,32 +50,31 @@ export const DATASET_REGISTRY: Record<string, DatasetMetadata> = {
   },
   'BD-WEAT-D': {
     code: 'BD-WEAT-D',
-    title: 'Surface Temperature & Hydrometeorology (Dhaka Central Grid)',
-    variableName: 'Daily Maximum Temperature (°C) & Rainfall (mm)',
+    title: 'Daily Weather — Dhaka-area Grid Point',
+    variableName: 'Choose a parameter: T2M / T2M_MAX / T2M_MIN / PRECTOTCORR',
     scope: 'Dhaka Metropolitan Coordinates (23.81° N, 90.41° E)',
     nativeCadence: 'Daily (24-hour summary accumulation)',
     sourceEndpoint: 'NASA POWER Daily API Point Endpoint (MERRA-2 Satellite/Reanalysis)',
-    citationDOI: '10.5067/TEM/POWER/DAILY',
+    citationDOI: 'See NASA POWER API documentation',
     forecastHorizon: '1 Day / 7 Days Multi-Step Outlook',
     horizonSteps: 7,
-    unit: '°C / mm',
+    unit: 'Parameter-specific: °C or mm/day',
     totalTimestamps: 2190, // 6 years daily
     missingRatio: 0.0,
     baselineThreshold: 38.0, // Extreme Heatwave Alert Threshold
     thresholdLabel: 'Critical Heatwave Warning Threshold',
     description:
-      'Daily meteorological records from NASA POWER covering surface skin temperature, precipitation, all-sky shortwave downward irradiance, and relative humidity. Governed by pre-monsoon convective thunderstorms (Kalbaishakhi) and Southwest monsoon transitions.',
+      'NASA POWER daily gridded/reanalysis-derived weather series for a Dhaka-area point. T2M variables represent 2-m air temperature, not surface skin temperature. Validate parameter units and missing codes from the API response; this is not a Bangladesh Meteorological Department station record.',
     covariates: [
-      'All-Sky Surface Shortwave Downward Irradiance (MJ/m²)',
-      'Atmospheric Pressure at Surface (kPa)',
-      'Monsoon Regime Phase Indicator',
-      'Cooling Degree Days (CDD 18.3)',
+      'T2M / T2M_MAX / T2M_MIN (2-m air temperature)',
+      'PRECTOTCORR (corrected daily precipitation)',
+      'Calendar/monsoon context only after sourcing and versioning',
     ],
   },
   'EXT-AIR-H': {
     code: 'EXT-AIR-H',
     title: 'Ambient Urban Pollutant Density (External Benchmark Transfer)',
-    variableName: 'Respirable Particulate Density PM10 (µg/m³)',
+    variableName: 'Choose a documented sensor/gas variable from the source CSV',
     scope: 'Urban Reference Monitoring Station (Cross-Domain Stress Test)',
     nativeCadence: 'Hourly (Gas sensor array recordings)',
     sourceEndpoint: 'UCI Machine Learning Repository (Air Quality ID 360)',
@@ -86,11 +83,11 @@ export const DATASET_REGISTRY: Record<string, DatasetMetadata> = {
     horizonSteps: 24,
     unit: 'µg/m³',
     totalTimestamps: 9357,
-    missingRatio: 0.021, // 2.1% sensor drop
+    missingRatio: 0.021, // Unverified legacy placeholder; UCI file has substantial missingness/sentinel values.
     baselineThreshold: 50.0, // WHO 24-hr Health Exposure Limit
-    thresholdLabel: 'WHO 24-Hour Ambient Exposure Limit',
+    thresholdLabel: 'No threshold assigned until the measured variable is verified',
     description:
-      'Multi-sensor hourly chemical concentration dataset used as an external out-of-domain benchmark to evaluate cross-domain algorithm transferability and sensor missingness degradation without localized Bangladesh calendar priors.',
+      'Foreign external benchmark only: UCI Air Quality contains Italian sensor data from 2004–2005 and substantial missing values/sentinel codes. Choose and document a continuous target from the original file; do not interpret raw sensor channels as PM10 concentration or claim anything about Dhaka.',
     covariates: [
       'Nitrogen Dioxide NO2 (µg/m³)',
       'Relative Humidity (%)',
@@ -100,7 +97,7 @@ export const DATASET_REGISTRY: Record<string, DatasetMetadata> = {
   },
 };
 
-// Benchmark Model Registry with Official Metrics from Paper Blueprint (Table 2 & Table 4)
+// Static illustrative metrics from an early design mock-up. They have not been computed against the referenced datasets and must not be presented as experimental results.
 export const MODEL_CANDIDATE_POOL: Record<string, CandidateModel[]> = {
   'BD-ELEC-H': [
     {
