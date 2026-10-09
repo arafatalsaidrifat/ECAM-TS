@@ -129,3 +129,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media(max-width:850px) { .ecam-hero-inner { grid-template-columns:1fr; gap:8px; } .ecam-hero-visual { min-height:300px; max-width:600px; width:100%; margin:0 auto; } .ecam-hero h2 { font-size:clamp(36px,7vw,55px); } }
 @media(max-width:500px) { .ecam-hero-visual { min-height:255px; } .ecam-orb { width:210px; height:210px; } .ecam-orb-core { width:90px; height:90px; } .ecam-visual-tag { transform:scale(.9); } .tag-top { right:-3%; top:6%; } .tag-bottom { left:-3%; bottom:9%; } .ecam-visual-caption { font-size:7px; } }
 @media(prefers-reduced-motion:reduce) { .ecam-orb,.tag-mini-bars i { animation:none !important; } }
+
+/* Keep clicked research sections clear of the sticky header during smooth navigation. */
+.ecam-workbench-main { scroll-margin-top: 210px; }
+@media (max-width: 760px) { .ecam-workbench-main { scroll-margin-top: 280px; } }
