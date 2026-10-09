@@ -13,6 +13,9 @@ type Strategy = ForecastStrategy;
 type MetricRow = ForecastMetric;
 type AuditSummary = { rows: number; valid: number; missingTarget: number; timestampParseFailures: number; duplicateTimestamps: number; cadence: string; start: string; end: string };
 
+const DATE_COLUMN_PATTERN = /^(date|time|timestamp|datetime|date_time|observation_date|period|ds|month|year_month)$/i;
+const isDateColumn = (column: string) => DATE_COLUMN_PATTERN.test(column.trim());
+
 const POWER_PARAMETERS: Record<string, string> = {
   T2M: 'Mean 2-m air temperature (°C)',
   T2M_MAX: 'Maximum 2-m air temperature (°C)',
@@ -179,10 +182,9 @@ export const DataIntakeLabModule: React.FC = () => {
           setMessage({ kind: 'error', text: 'The CSV contains no header or data rows.' });
           return;
         }
-        const dateCol = nextColumns.find(column => /date|time|timestamp|datetime/i.test(column)) ?? '';
-        const numberCol = nextColumns.find(column => nextRows.slice(0, 100).some(row => Number.isFinite(numberValue(row[column])))) ?? '';
-        acceptRows(nextRows, nextColumns, file.name, 'User-uploaded local CSV (browser session)', 'User-provided file. The app does not certify its source, license, definitions or measurement quality.', 'csv', dateCol, numberCol);
-        setMessage({ kind: 'success', text: 'Read ' + nextRows.length.toLocaleString() + ' CSV rows. Review the target column and audit findings before backtesting.' });
+        const dateCol = nextColumns.find(isDateColumn) ?? '';
+        acceptRows(nextRows, nextColumns, file.name, '', 'Local browser upload. Source URL, version, license, definitions and measurement quality have not been independently verified.', 'csv', dateCol, '');
+        setMessage({ kind: nextRows.length < 16 ? 'info' : 'success', text: nextRows.length < 16 ? 'Loaded ' + nextRows.length.toLocaleString() + ' row(s), but this is too short for baseline evaluation. If this is a dataset-details/metadata export, download the actual observations table as CSV. Confirm that each row represents one time point.' : 'Read ' + nextRows.length.toLocaleString() + ' CSV rows. Choose the observed target, verify timestamps and provenance, then review the audit before backtesting.' });
       },
       error: error => setMessage({ kind: 'error', text: error.message }),
     });
@@ -299,13 +301,14 @@ export const DataIntakeLabModule: React.FC = () => {
             <h3 className="font-bold text-slate-900">3. Define the forecast task</h3>
             <label className="mt-4 block text-xs font-semibold text-slate-600">Target variable
               <select value={target} onChange={event => { setTarget(event.target.value); clearResult(); }} className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-800">
+                <option value="">Choose a numeric target…</option>
                 {numericColumns.map(column => <option value={column} key={column}>{column}{POWER_PARAMETERS[column] ? ' — ' + POWER_PARAMETERS[column] : ''}</option>)}
               </select>
             </label>
             <label className="mt-3 block text-xs font-semibold text-slate-600">Timestamp column
               <select value={timestamp} onChange={event => { setTimestamp(event.target.value); clearResult(); }} className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-xs text-slate-800">
                 <option value="">Row order only (no timestamp)</option>
-                {columns.map(column => <option value={column} key={column}>{column}</option>)}
+                {columns.filter(isDateColumn).map(column => <option value={column} key={column}>{column}</option>)}
               </select>
             </label>
             <label className="mt-3 block text-xs font-semibold text-slate-600">Forecast horizon: <span className="font-mono text-teal-800">{horizon} steps</span>
@@ -327,7 +330,7 @@ export const DataIntakeLabModule: React.FC = () => {
         <div className="space-y-4 min-w-0">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div><div className="text-[10px] font-bold uppercase tracking-[.15em] text-slate-400">Dataset audit</div><h3 className="mt-1.5 text-lg font-bold text-slate-900">{sourceLabel || 'No source loaded yet'}</h3><p className="mt-1 text-xs text-slate-500">Provenance, target quality and timestamp checks before modeling.</p></div>
+              <div><div className="text-[10px] font-bold uppercase tracking-[.15em] text-slate-400">Dataset audit</div><h3 className="mt-1.5 text-lg font-bold text-slate-900">{sourceLabel || 'No source loaded yet'}</h3><p className="mt-1 text-xs text-slate-500">Provenance, target quality and timestamp checks before modeling.</p><p className="mt-2 max-w-2xl text-[11px] leading-5 text-slate-500">Workflow: download the actual observations file (not the catalog/details record) → preserve the original → upload a working copy → choose the measured target and a real time column → verify cadence, units, missingness and license → run baselines only when the audit passes.</p></div>
               {rows.length > 0 && <span className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[10px] font-semibold text-emerald-800"><CheckCircle2 className="h-3.5 w-3.5" /> Loaded locally</span>}
             </div>
             {rows.length === 0 ? <div className="mt-7 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><div className="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-white text-slate-500 shadow-sm"><UploadCloud className="h-5 w-5" /></div><h4 className="mt-3 font-semibold text-slate-800">Bring in an actual source series</h4><p className="mx-auto mt-1.5 max-w-sm text-xs leading-5 text-slate-500">Fetch the documented NASA POWER series above, or upload a CSV downloaded from the proposal’s electricity or food-price source.</p></div> :
@@ -346,11 +349,12 @@ export const DataIntakeLabModule: React.FC = () => {
                   <div><span className="text-slate-500">First timestamp</span><p className="mt-1 break-words font-mono text-[11px] text-slate-800">{audit.start}</p></div>
                   <div><span className="text-slate-500">Last timestamp</span><p className="mt-1 break-words font-mono text-[11px] text-slate-800">{audit.end}</p></div>
                 </div>
-                {(audit.duplicateTimestamps > 0 || audit.timestampParseFailures > 0 || audit.missingTarget > 0) && <div className="mt-3 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0"/><span>Quality flags are visible. Duplicate or unparseable timestamps block forecasting until a corrected working copy is loaded; nonnumeric target rows are skipped and counted.</span></div>}
+                {(audit.duplicateTimestamps > 0 || audit.timestampParseFailures > 0 || audit.missingTarget > 0 || observations.length < 16 || !target) && <div className="mt-3 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0"/><span>{observations.length < 16 ? 'Only ' + observations.length + ' valid target observation(s) were found. The baseline runner needs at least 16 rows; a one-row source-details file is metadata, not a usable time series. Download the actual observations CSV and confirm one row represents one timestamp.' : !target ? 'Choose the measured numeric variable—not a row count, market count, confidence score or other metadata field—before forecasting.' : 'Quality flags are visible. Duplicate or unparseable timestamps block forecasting until a corrected working copy is loaded; nonnumeric target rows are skipped and counted.'}</span></div>}
                 <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
                   <div className="flex items-center gap-2"><Database className="h-4 w-4 text-slate-500"/><span className="text-xs font-semibold text-slate-800">Source record</span><span className="ml-auto text-[10px] text-slate-400">retrieved {retrievedAt ? new Date(retrievedAt).toLocaleString() : '—'}</span></div>
                   <p className="mt-2 break-words text-xs text-slate-600">{sourceNote}</p>
-                  {sourceUrl && <a className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-teal-800 underline" href={sourceUrl} target="_blank" rel="noreferrer">Open exact source request <ArrowRight className="h-3 w-3"/></a>}
+                  {sourceUrl && /^https?:\/\//i.test(sourceUrl) && <a className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-teal-800 underline" href={sourceUrl} target="_blank" rel="noreferrer">Open exact source request <ArrowRight className="h-3 w-3"/></a>}
+                  {!sourceUrl && <p className="mt-2 text-[10px] leading-4 text-slate-500">No source URL was supplied with this local upload. No browser-session link is generated; add the verified source URL to your research log.</p>}
                 </div>
               </>
             }
