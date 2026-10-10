@@ -150,3 +150,66 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Responsive research-workbench ergonomics */
+@layer base {
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    min-width: 0;
+  }
+
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Keep scientific tables readable on narrow screens without breaking layout. */
+  table {
+    max-width: 100%;
+  }
+
+  img,
+  svg,
+  canvas {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 639px) {
+  body {
+    font-size: 14px;
+  }
+
+  /* iOS zooms focused form controls smaller than 16px; preserve readable sizing. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  main {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Keep long research navigation and data controls horizontally scrollable. */
+  [aria-label="Tabs"],
+  [data-horizontal-scroll] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  [aria-label="Tabs"]::-webkit-scrollbar,
+  [data-horizontal-scroll]::-webkit-scrollbar {
+    display: none;
+  }
+}
