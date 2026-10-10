@@ -147,7 +147,7 @@ export default function App() {
       )}
 
       {/* Main Scientific Workbench Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
         {currentTab === 'real-csv-forecast' && <RealDataForecastModule />}
 
         {currentTab === 'cadence-audit' && (
@@ -223,7 +223,7 @@ export default function App() {
       </main>
 
       {/* Academic Footer & Provenance Metadata */}
-      <footer className="bg-white border-t border-slate-200 mt-12 py-6 text-xs text-slate-500">
+      <footer className="bg-white border-t border-slate-200 mt-8 sm:mt-12 py-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <div className="font-semibold text-slate-800">
