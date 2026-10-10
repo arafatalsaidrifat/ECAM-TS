@@ -83,7 +83,7 @@ export default function App() {
   }, [selectedDomain, selectedScenario, ablation, stress, routerWeights, gridCapacityMW]);
 
   return (
-    <div className="min-h-screen bg-[#F7F5EF] text-slate-900 flex flex-col font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-[#F7F5EF] text-slate-900 flex flex-col font-sans antialiased selection:bg-[#dcebe0] selection:text-[#153a29]">
       {/* Top Header & Defense Navigation */}
       <Header
         currentTab={currentTab}
@@ -98,7 +98,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] flex items-center gap-1">
-              <Play className="w-3 h-3 text-blue-600 inline" />
+              <Play className="w-3 h-3 text-[#245b40] inline" />
               Live Defense Scenarios:
             </span>
 
@@ -113,7 +113,7 @@ export default function App() {
                   }}
                   className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-2xs font-semibold'
+                      ? 'bg-[#245b40] text-white shadow-sm font-semibold'
                       : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                   }`}
                 >
@@ -241,7 +241,7 @@ export default function App() {
             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
               Simplex: Σ w_m = 1.000
             </span>
-            <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded border border-purple-200 font-semibold">
+            <span className="bg-[#fbf6e9] text-[#795c30] px-2 py-0.5 rounded border border-[#edd7a2] font-semibold">
               AI: gemini-3.1-pro-preview (HIGH)
             </span>
           </div>
