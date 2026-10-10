@@ -217,7 +217,7 @@ export default function App() {
       )}
 
       {/* Main Scientific Workbench Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main id="workbench-view" className="ecam-workbench-main flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {currentTab === 'real-csv-forecast' && <RealDataForecastModule />}
 
         {currentTab === 'cadence-audit' && (
