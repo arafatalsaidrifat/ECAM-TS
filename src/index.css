@@ -129,3 +129,91 @@ pre, code { max-width: 100%; overflow-x: auto; }
   .ecam-primary-action:hover { transform: none; }
 }
 \n
+
+/* Premium amber / ivory glass finish + slow 3D research emblem */
+:root {
+  --ecam-accent: #e98235;
+  --ecam-accent-hot: #e9654d;
+  --ecam-accent-soft: #f6c78f;
+  --ecam-glass: rgba(255,253,248,.72);
+  --ecam-glass-border: rgba(255,255,255,.78);
+  --ecam-glass-shadow: 0 18px 55px rgba(91,64,36,.10);
+}
+body { background-color: #fffdf8; color: #27251f; }
+.ecam-hero {
+  color: #27251f !important;
+  background:
+    radial-gradient(ellipse at 76% 22%, rgba(255,207,151,.48), transparent 35%),
+    radial-gradient(ellipse at 8% 88%, rgba(242,164,113,.18), transparent 34%),
+    linear-gradient(135deg, #fffefa 0%, #fff8ed 54%, #f8efe3 100%) !important;
+  border-bottom: 1px solid rgba(219,173,126,.28) !important;
+}
+.ecam-hero h1, .ecam-hero h2 { color: #27251f !important; }
+.ecam-hero p { color: #71685e !important; }
+.ecam-hero h2 span, .ecam-hero h1 span {
+  background: linear-gradient(100deg, #e9654d 0%, #e98235 48%, #d5a45c 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+}
+.ecam-eyebrow, .ecam-hero-proof svg { color: #e98235 !important; }
+.ecam-primary-action {
+  color: #fffefa !important;
+  background: linear-gradient(120deg, #e9654d, #e98235 68%, #efa94e) !important;
+  border: 1px solid rgba(213,110,59,.24) !important;
+  box-shadow: 0 10px 28px rgba(226,116,65,.23), inset 0 1px 0 rgba(255,255,255,.3) !important;
+  transition: transform .28s ease, box-shadow .28s ease, filter .28s ease !important;
+}
+.ecam-primary-action:hover { transform: translateY(-2px); box-shadow: 0 15px 36px rgba(226,116,65,.28) !important; }
+.ecam-secondary-action {
+  color: #554b40 !important; background: rgba(255,255,255,.58) !important;
+  border: 1px solid rgba(255,255,255,.9) !important;
+  box-shadow: 0 8px 25px rgba(91,64,36,.055), inset 0 1px 0 #fff !important;
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+}
+.ecam-nav-link.active { color: #e9654d !important; }
+.ecam-nav-indicator { background: linear-gradient(90deg,#e9654d,#efa94e) !important; box-shadow: 0 0 12px rgba(233,130,53,.32) !important; }
+.ecam-orb-grid {
+  opacity: .34 !important;
+  background-image: radial-gradient(rgba(225,145,79,.44) .8px, transparent .8px) !important;
+}
+.ecam-orb-halo {
+  background: radial-gradient(circle, rgba(244,164,94,.27), rgba(233,101,77,.10) 42%, transparent 72%) !important;
+}
+.ecam-orb { animation: ecam-orb-float 8.5s ease-in-out infinite, ecam-emblem-turn 24s linear infinite !important; }
+.ecam-orb-ring { border-color: rgba(226,145,78,.40) !important; box-shadow: inset 0 0 26px rgba(243,172,104,.09), 0 0 25px rgba(233,130,53,.08) !important; }
+.ecam-orb-core {
+  color: #e98235 !important;
+  border: 1px solid rgba(255,255,255,.86) !important;
+  border-radius: 30px !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(255,239,218,.60)) !important;
+  box-shadow: 0 22px 55px rgba(171,103,52,.15), inset 0 1px 0 #fff, inset 0 -12px 30px rgba(239,168,105,.12) !important;
+  backdrop-filter: blur(18px) saturate(145%); -webkit-backdrop-filter: blur(18px) saturate(145%);
+  animation: ecam-logo-hover 6s ease-in-out infinite;
+}
+.ecam-orb-ring::after { background: #f0a24f !important; box-shadow: 0 0 15px rgba(240,162,79,.72) !important; }
+.ecam-orb .ring-two { border-color: rgba(233,101,77,.40) !important; }
+.ecam-orb .ring-two::after { background: #e9654d !important; box-shadow: 0 0 14px rgba(233,101,77,.7) !important; }
+.ecam-orb .ring-three { border-color: rgba(239,169,78,.52) !important; }
+.ecam-orb-node { border-color: #fff !important; background: #efa94e !important; box-shadow: 0 0 18px rgba(233,130,53,.5) !important; }
+.ecam-hero-visual { perspective: 1100px; transform-style: preserve-3d; }
+@keyframes ecam-emblem-turn {
+  0%,100% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(-8deg); }
+}
+@keyframes ecam-logo-hover {
+  0%,100% { transform: translate(-50%,-50%) rotateZ(24deg) rotateX(-58deg) translateY(0); }
+  50% { transform: translate(-50%,-50%) rotateZ(24deg) rotateX(-58deg) translateY(-7px); }
+}
+/* Soft glass surfaces for the overview/workbench cards, without changing data semantics. */
+.ecam-app .rounded-2xl, .ecam-app .rounded-xl,
+.ecam-workbench-main .rounded-2xl, .ecam-workbench-main .rounded-xl {
+  border-color: rgba(221,188,153,.36);
+}
+@media (max-width: 767px) {
+  .ecam-hero { background-position: center; }
+  .ecam-hero-visual { min-height: 220px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ecam-orb, .ecam-orb-core { animation: none !important; }
+  .ecam-primary-action { transition: none !important; }
+}
+\n
