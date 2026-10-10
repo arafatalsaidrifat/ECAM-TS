@@ -37,6 +37,12 @@ export interface FoldSummary {
   trainingRows: number;
   scoredRows: number;
   adaptiveMae: number;
+  /** Zero-based index of the first target row; training uses rows strictly before this index. */
+  originIndex: number;
+  /** Stored only to make origin-time invariance directly testable. */
+  adaptivePredictions: number[];
+  /** Largest target index used to form router weights; -1 means no prior validation errors. */
+  maxRouterErrorTargetIndex: number;
 }
 
 export interface RollingForecastResult {
@@ -439,7 +445,7 @@ export function runRollingOriginEvaluation(
   const predictionsByModel: PredictionMap = {};
   const actualByModel: Record<string, number[]> = {};
   const residualsByModel: Record<string, number[]> = {};
-  const priorAbsoluteErrors: Record<string, number[]> = {};
+  const priorAbsoluteErrors: Record<string, Array<{ targetIndex: number; error: number }>> = {};
   const foldSummaries: FoldSummary[] = [];
   for (const id of baseIds.concat(["adaptive_ensemble"])) {
     predictionsByModel[id] = [];
@@ -452,7 +458,7 @@ export function runRollingOriginEvaluation(
     const training = values.slice(0, origin);
     const actual = values.slice(origin, origin + horizon);
     const basePredictions = forecastBaseModels(training, horizon, period);
-    const priorWeights = normalizedInverseErrorWeights(baseIds, priorAbsoluteErrors);
+    // Overlapping multi-step folds can score targets that are still in the future at this origin.\n    // Only prior errors whose target timestamp is strictly before the current origin may train the router.\n    const eligibleErrors: Record<string, number[]> = Object.fromEntries(baseIds.map((id) => [\n      id, priorAbsoluteErrors[id].filter((item) => item.targetIndex < origin).map((item) => item.error),\n    ]));\n    const priorWeights = normalizedInverseErrorWeights(baseIds, eligibleErrors);
     const adaptivePrediction = weightedForecast(basePredictions, priorWeights, horizon);
     const everyPrediction: PredictionMap = Object.assign({}, basePredictions, {
       adaptive_ensemble: adaptivePrediction,
@@ -481,7 +487,7 @@ export function runRollingOriginEvaluation(
     for (const id of baseIds) {
       const prediction = basePredictions[id];
       for (let index = 0; index < actual.length; index += 1) {
-        priorAbsoluteErrors[id].push(Math.abs(actual[index] - prediction[index]));
+        priorAbsoluteErrors[id].push({ targetIndex: origin + index, error: Math.abs(actual[index] - prediction[index]) });
       }
     }
   });
