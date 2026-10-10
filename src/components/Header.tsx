@@ -31,9 +31,9 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <header className="bg-[#fffdf8]/95 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-40 shadow-sm">
       {/* Top Academic Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3.5 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
@@ -47,7 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
               CSV lab checks chronological rolling origins
             </span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mt-1">
+          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mt-1 leading-tight">
             ECAM-TS Research Defense Workbench
           </h1>
           <p className="text-xs text-slate-600 mt-0.5">
@@ -56,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Domain Selector & Provenance Pills */}
-        <div className="flex items-center flex-wrap gap-2">
+        <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
           <div className="text-right hidden sm:block mr-2">
             <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
               Audited Domain Pipeline
@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
               {currentDataset.unit} Native Cadence
             </div>
           </div>
-          <div className="inline-flex p-1 bg-slate-100 rounded-lg border border-slate-200">
+          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 max-w-full overflow-x-auto">
             {(Object.keys(DATASET_REGISTRY) as DomainCode[]).map((code) => {
               const d = DATASET_REGISTRY[code];
               const isSelected = selectedDomain === code;
@@ -92,8 +92,8 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Navigation Tab Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-100">
-        <nav className="flex space-x-1 sm:space-x-3 overflow-x-auto py-2 scrollbar-none" aria-label="Tabs">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 border-t border-slate-100">
+        <nav className="flex gap-1 sm:gap-3 overflow-x-auto py-2 scrollbar-none snap-x snap-mandatory" aria-label="Tabs">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = currentTab === tab.id;
@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 min-h-11 px-3 py-2 text-xs font-medium rounded-xl whitespace-nowrap transition-colors cursor-pointer snap-start ${
                   isActive
                     ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-200'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
