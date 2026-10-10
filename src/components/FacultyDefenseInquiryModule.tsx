@@ -46,27 +46,21 @@ export const FacultyDefenseInquiryModule: React.FC<FacultyDefenseInquiryModulePr
       role: 'Dr. Methodological Rigor (Defense Chair)',
       question:
         'Prove mathematically and architecturally that the ECAM-TS conditioning vector z_(d,i) and dynamic routing weights strictly prevent temporal data leakage and look-ahead bias across rolling historical origins.',
-      answer: `### Formal Architectural Proof of Zero Temporal Data Leakage in ECAM-TS
+      answer: `### Evidence-aware defense note: temporal leakage controls
 
-The ECAM-TS framework enforces anti-leakage guarantees across three distinct structural layers:
+**Claim status: a design requirement, not a proven guarantee from this UI alone.** A rolling-origin protocol can prevent look-ahead only if every implementation path enforces the same cutoff. The conditioning vector and softmax weights do not, by themselves, prove that no leakage occurs.
 
-#### 1. Temporal Information Boundary (t_avail ≤ t_origin)
-For any target domain $d$ and forecast origin index $i$ occurring at physical timestamp $t_{\\text{origin}}$, all input transformations rely exclusively on the strictly past historical filtration:
-$$\\mathcal{F}_{d,i} = \\sigma\\left( \\{ y_{d,t} \\mid t \\le t_{\\text{origin}} \\} \\cup \\{ x_{d,t}^{\\text{past}} \\mid t \\le t_{\\text{origin}} \\} \\right)$$
+1. **Information boundary.** At forecast origin \\(o\\), features must be computed only from observations and covariates available by that origin:
+   \\[z_{d,o}=g(\\{y_{d,t}:t\\le o\\},\\{x_{d,t}:\\text{available time}\\le o\\}).\\]
+   Scalers, imputation, feature selection, decomposition and hyperparameter tuning must be fitted inside each training fold. Centered smoothers or full-series transforms can leak future information even if the final feature row ends at \\(o\\).
 
-All statistical feature operators—including the Seasonal-Trend LOESS decomposition (STL), spectral Shannon entropy $H_{\\text{spec}}$, and sample autocorrelation structures $ACF(1)$ and $ACF(m)$—are fitted exclusively over the rolling window:
-$$\\mathbf{y}_{d, \\le i} = [y_{d, i - W + 1}, \\dots, y_{d, i}]$$
-No data points beyond $t_{\\text{origin}}$ enter the scaling transform or trend smoother.
+2. **Future covariates.** For weather or calendar-driven load forecasting, use only forecasts and plans that were actually available at origin \\(o\\). Realized future weather is not a valid substitute for archived forecasts.
 
-#### 2. Exogenous Covariate Simulation & Archived Weather Predictions
-A pervasive flaw in standard benchmark literature is the injection of actual realized future temperatures $T_{\\text{true}}(t_{\\text{origin}} + h)$ into multi-step load models. ECAM-TS forbids perfect-information weather inputs. Instead, the operational benchmark is restricted to archived numerical weather forecasts issued strictly at or before $t_{\\text{origin}}$:
-$$\\hat{x}_{d, i+h}^{\\text{weather}} = \\text{NWP}_{t_{\\text{origin}}}(t_{\\text{origin}} + h)$$
-This eliminates artificial thermal foresight.
+3. **Router validation.** Train the router only on chronological out-of-fold base-model predictions generated without access to the corresponding validation targets. For each test origin, fit the router using earlier folds only; do not tune against the final test period. Softmax gives nonnegative weights summing to one, but does not itself enforce temporal validity.
 
-#### 3. Out-of-Fold (OOF) Router Optimization
-To prevent meta-overfitting, the routing weights $w_m(z_{d,i})$ are never trained on in-sample base model residuals. Instead, a rolling-origin time-series cross-validation scheme with $V$ chronological splits is executed. Base forecasters produce genuine holdout predictions $\\hat{y}_m(d, v, h)$, and the meta-router gradient updates are computed solely on these out-of-fold loss surfaces. The dynamic softmax allocation:
-$$w_m(z_{d,i}) = \\frac{\\exp(a_m(z_{d,i}))}{\\sum_{k=1}^M \\exp(a_k(z_{d,i}))}$$
-preserves strict mathematical and temporal validity across all validation origins.`,
+4. **What would count as evidence.** Record the cutoff timestamp for every feature, verify split indices programmatically, fit preprocessing independently per fold, and run a leakage test that perturbs observations after \\(o\\). Predictions and \\(z_{d,o}\\) should remain unchanged. Publish these tests and rolling-origin results before claiming a strict guarantee.
+
+**Defense wording:** “ECAM-TS is designed to enforce origin-time information boundaries. A strict anti-leakage guarantee is conditional on fold-local preprocessing, archived covariates and verified chronological router training; it must be demonstrated by implementation tests rather than inferred from the architecture diagram.”`,
       timestamp: '2026-10-09 11:42',
     },
   ]);
@@ -130,7 +124,7 @@ preserves strict mathematical and temporal validity across all validation origin
           item.id === tempId
             ? {
                 ...item,
-                answer: `**Defense Engine Advisory**: An operational communication error occurred while synthesizing the response: ${err.message}. Please verify the server connection.`,
+                answer: `**Defense response unavailable — ${err.message}.** The defense API did not return a response, so no generated answer is being presented as fact. Check that the deployed site has the /api/gemini/defense-inquiry endpoint and its server-side credentials configured. The preset notes already shown in this panel are local reference material; they are not live model output.`,
                 isLoading: false,
               }
             : item
@@ -170,21 +164,21 @@ preserves strict mathematical and temporal validity across all validation origin
               High-Thinking Defense Committee Inquiry & Theoretical Defense
             </h2>
             <p className="text-sm text-slate-600 mt-1 max-w-3xl">
-              Powered by <span className="font-mono font-semibold text-purple-700">gemini-3.1-pro-preview</span> with <span className="font-mono font-semibold text-purple-700">ThinkingLevel.HIGH</span>.
-              Simulates a live computer science thesis defense panel probing methodological rigor, baseline fairness, anti-leakage guarantees, and failure modes.
+              Optional server-side AI endpoint: <span className="font-mono font-semibold text-purple-700">/api/gemini/defense-inquiry</span>.
+              Use the preset questions as a structured review checklist. Any empirical claim must be backed by benchmark outputs; a failed API request will be reported explicitly rather than invented.
             </p>
           </div>
 
           <div className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-800 px-3 py-1.5 rounded-lg border border-purple-200 text-xs font-medium">
             <Cpu className="w-4 h-4 text-purple-600" />
-            <span>High Thinking Mode Active</span>
+            <span>Defense notes · evidence-aware</span>
           </div>
         </div>
 
         {/* Preset Faculty Committee Questions */}
         <div className="mt-5">
           <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-            Preset Committee Inquiries (1-Click Defense Defense Questions):
+            Preset Committee Inquiries (select to draft a question):
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {PRESET_COMMITTEE_QUESTIONS.map((p, idx) => (
