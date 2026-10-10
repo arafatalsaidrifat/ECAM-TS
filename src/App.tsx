@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   DomainCode,
   AblationSettings,
@@ -26,6 +26,11 @@ import { ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('real-csv-forecast');
+  const didNavigate = useRef(false);
+  useEffect(() => {
+    if (!didNavigate.current) { didNavigate.current = true; return; }
+    document.getElementById('workbench-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [currentTab]);
   const [selectedDomain, setSelectedDomain] = useState<DomainCode>('BD-ELEC-H');
 
   const [selectedScenario, setSelectedScenario] = useState<ForecastScenario>(
@@ -147,7 +152,7 @@ export default function App() {
       )}
 
       {/* Main Scientific Workbench Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+      <main id="workbench-view" className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
         {currentTab === 'real-csv-forecast' && <RealDataForecastModule />}
 
         {currentTab === 'cadence-audit' && (
