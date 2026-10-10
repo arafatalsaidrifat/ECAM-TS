@@ -31,26 +31,26 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="bg-[#fffdf8]/95 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <header className="bg-[#153a29] text-white backdrop-blur-xl border-b border-[#245b40] sticky top-0 z-40 shadow-lg shadow-[#153a29]/10">
       {/* Top Academic Banner */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3.5 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-[#245b40] text-[#f7f5ef] border border-[#51a47f]/40">
               ECAM-TS
             </span>
-            <span className="text-xs font-mono text-slate-500">
+            <span className="text-xs font-mono text-[#d5e3d8]">
               v2.0-Real-Data-Engine
             </span>
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-[#bce6d3] bg-[#245b40] px-2 py-0.5 rounded border border-[#51a47f]/40">
               <ShieldCheck className="w-3.5 h-3.5" />
               CSV lab checks chronological rolling origins
             </span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mt-1 leading-tight">
+          <h1 className="text-lg sm:text-xl font-bold text-[#fffdf8] tracking-tight mt-1 leading-tight">
             ECAM-TS Research Defense Workbench
           </h1>
-          <p className="text-xs text-slate-600 mt-0.5">
+          <p className="text-xs text-[#d5e3d8] mt-0.5">
             Event- & Context-Aware Adaptive Model Selection for Multi-Domain Time-Series Forecasting
           </p>
         </div>
@@ -58,14 +58,14 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Domain Selector & Provenance Pills */}
         <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
           <div className="text-right hidden sm:block mr-2">
-            <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+            <div className="text-[11px] font-medium text-[#d5e3d8] uppercase tracking-wider">
               Audited Domain Pipeline
             </div>
-            <div className="text-xs font-semibold text-slate-800">
+            <div className="text-xs font-semibold text-[#f7f5ef]">
               {currentDataset.unit} Native Cadence
             </div>
           </div>
-          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 max-w-full overflow-x-auto">
+          <div className="inline-flex p-1 bg-[#0d281b] rounded-xl border border-[#3b624b] max-w-full overflow-x-auto">
             {(Object.keys(DATASET_REGISTRY) as DomainCode[]).map((code) => {
               const d = DATASET_REGISTRY[code];
               const isSelected = selectedDomain === code;
@@ -75,8 +75,8 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => setSelectedDomain(code)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-white text-blue-700 shadow-xs font-semibold border border-slate-200/60'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                      ? 'bg-[#f7f5ef] text-[#153a29] shadow-sm font-semibold border border-[#bd954d]/60'
+                      : 'text-[#d5e3d8] hover:text-white hover:bg-[#245b40]'
                   }`}
                   title={d.title}
                 >
@@ -92,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Navigation Tab Bar */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 border-t border-slate-100">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 border-t border-[#245b40] bg-[#153a29]">
         <nav className="flex gap-1 sm:gap-3 overflow-x-auto py-2 scrollbar-none snap-x snap-mandatory" aria-label="Tabs">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -103,11 +103,11 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => setCurrentTab(tab.id)}
                 className={`inline-flex items-center gap-1.5 min-h-11 px-3 py-2 text-xs font-medium rounded-xl whitespace-nowrap transition-colors cursor-pointer snap-start ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-200'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#245b40] text-[#fffdf8] font-semibold border border-[#51a47f]/50'
+                    : 'text-[#d5e3d8] hover:text-white hover:bg-[#245b40]'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#9ed7bd]' : 'text-[#8eaa97]'}`} />
                 <span>{tab.label}</span>
               </button>
             );
