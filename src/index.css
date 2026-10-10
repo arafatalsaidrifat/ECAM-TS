@@ -229,3 +229,53 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media(max-width:850px){.ecam-overview-hero{grid-template-columns:1fr}.ecam-overview-telemetry{max-width:none}.ecam-overview-orbit{right:-80px;top:0}.ecam-overview-status-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.ecam-overview-domains,.ecam-overview-pipeline,.ecam-overview-explain-grid,.ecam-advisory-actions-grid{grid-template-columns:1fr}.ecam-domain-card>p{min-height:0}.ecam-overview-step{padding:13px}.ecam-step-connector{display:none}.ecam-advisory-summary{grid-template-columns:1fr}.ecam-advisory-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.ecam-overview-orbit{opacity:.22;right:-115px;top:7%}.ecam-overview-hero{padding:24px 18px;border-radius:18px}}
 @media(prefers-reduced-motion:reduce){.ecam-domain-card,.ecam-overview-actions button{transition:none}}
+
+/* Shared ECAM-TS premium palette — synced across existing branches */
+:root {
+  --ecam-premium-ink: #192c22;
+  --ecam-premium-muted: #5c675d;
+  --ecam-premium-canvas: #f8f7f1;
+  --ecam-premium-line: #e1dfd4;
+  --ecam-premium-evergreen: #2d714f;
+  --ecam-premium-evergreen-dark: #192c22;
+  --ecam-premium-mint: #8dc3a1;
+  --ecam-premium-champagne: #d8bd83;
+}
+html, body { background: var(--ecam-premium-canvas); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+  outline-color: color-mix(in srgb, var(--ecam-premium-evergreen) 42%, transparent);
+}
+::selection { background: #dcebe0; color: #192c22; }
+.ecam-header, header.ecam-header {
+  background: linear-gradient(112deg, #0d1b13 0%, #192c22 58%, #244b37 100%);
+}
+.ecam-hero {
+  background: linear-gradient(112deg, #0d1b13 0%, #192c22 54%, #244b37 100%);
+}
+.ecam-hero h2 span {
+  background: linear-gradient(92deg, #a6d6b4 2%, #d8bd83 72%, #f0dfb7 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+.ecam-eyebrow, .ecam-hero-proof svg, .ecam-brand strong span,
+.ecam-nav-link.active svg { color: #a6d6b4; }
+.ecam-orb-core { color: #c2e5cb; border-color: rgba(166,214,180,.58); }
+.ecam-orb-ring { border-color: rgba(166,214,180,.32); }
+.ecam-primary-action {
+  color: #102318; border-color: #d8bd83;
+  background: linear-gradient(115deg, #d8bd83, #f0dfb7);
+  box-shadow: 0 8px 26px rgba(45,113,79,.16), inset 0 1px 0 rgba(255,255,255,.8);
+}
+.ecam-primary-action:hover { box-shadow: 0 12px 32px rgba(45,113,79,.24), inset 0 1px 0 rgba(255,255,255,.8); }
+.ecam-nav-link.active { color: #f7f6ee; background: linear-gradient(180deg, rgba(141,195,161,.14), transparent); }
+.ecam-nav-indicator { background: #d8bd83; box-shadow: 0 0 12px rgba(216,189,131,.35); }
+.ecam-scenario-bar button.bg-blue-600,
+.ecam-app button.bg-blue-600 {
+  color: #fffdf8 !important; background: #2d714f !important;
+  border-color: #2d714f !important; box-shadow: 0 4px 12px rgba(45,113,79,.18);
+}
+.ecam-scenario-bar button:not(.bg-blue-600):hover,
+.ecam-app button:not(.bg-blue-600):hover { color: #245b40; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
