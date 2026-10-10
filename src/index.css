@@ -1,1 +1,152 @@
 @import "tailwindcss";
+
+/*
+ * ECAM-TS — premium research palette
+ * Warm ivory surfaces, evergreen structure, and restrained champagne accents.
+ * The existing semantic utility classes are preserved so charts, states, and
+ * all research panels keep their current behavior while sharing one visual system.
+ */
+:root {
+  color-scheme: light;
+
+  --color-white: #fffdf8;
+
+  /* Warm, green-tinted neutral scale */
+  --color-slate-50: #f8f7f1;
+  --color-slate-100: #f0eee5;
+  --color-slate-200: #e1dfd4;
+  --color-slate-300: #cbc9bd;
+  --color-slate-400: #a1a497;
+  --color-slate-500: #788074;
+  --color-slate-600: #5c675d;
+  --color-slate-700: #3d4e42;
+  --color-slate-800: #293b30;
+  --color-slate-900: #192c22;
+  --color-slate-950: #0d1b13;
+
+  /* Evergreen primary */
+  --color-blue-50: #edf5ef;
+  --color-blue-100: #dcebe0;
+  --color-blue-200: #badac4;
+  --color-blue-300: #8dc3a1;
+  --color-blue-400: #62a27e;
+  --color-blue-500: #39845d;
+  --color-blue-600: #2d714f;
+  --color-blue-700: #245b40;
+  --color-blue-800: #1b4732;
+  --color-blue-900: #153a29;
+  --color-blue-950: #0a2217;
+
+  /* Soft botanical highlights */
+  --color-cyan-50: #effaf5;
+  --color-cyan-100: #d8f2e5;
+  --color-cyan-200: #bce6d3;
+  --color-cyan-300: #9ed7bd;
+  --color-cyan-400: #76c29f;
+  --color-cyan-500: #51a47f;
+  --color-cyan-600: #3d8765;
+  --color-cyan-700: #316b51;
+  --color-cyan-800: #285442;
+  --color-cyan-900: #214536;
+  --color-cyan-950: #10281f;
+
+  /* Champagne accent in place of the former violet/purple */
+  --color-violet-50: #fbf6e9;
+  --color-violet-100: #f6eacb;
+  --color-violet-200: #edd7a2;
+  --color-violet-300: #e0c27e;
+  --color-violet-400: #d1ad66;
+  --color-violet-500: #bd954d;
+  --color-violet-600: #9b773c;
+  --color-violet-700: #795c30;
+  --color-violet-800: #5e4728;
+  --color-violet-900: #493721;
+  --color-violet-950: #2c2013;
+
+  --color-purple-50: #fbf6e9;
+  --color-purple-100: #f6eacb;
+  --color-purple-200: #edd7a2;
+  --color-purple-300: #e0c27e;
+  --color-purple-400: #d1ad66;
+  --color-purple-500: #bd954d;
+  --color-purple-600: #9b773c;
+  --color-purple-700: #795c30;
+  --color-purple-800: #5e4728;
+  --color-purple-900: #493721;
+  --color-purple-950: #2c2013;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #f7f5ef;
+    color: #192c22;
+  }
+
+  ::selection {
+    background: #dcebe0;
+    color: #153a29;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    accent-color: #2d714f;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 3px solid #c5a66b;
+    outline-offset: 2px;
+  }
+}
+
+/* A quiet, coordinated scrollbar that does not compete with the data. */
+* {
+  scrollbar-color: #c8d4ca transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #c8d4ca;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #91aa98;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
