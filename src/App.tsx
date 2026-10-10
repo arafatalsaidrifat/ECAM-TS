@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   DomainCode,
   AblationSettings,
@@ -26,6 +26,11 @@ import { Activity, ShieldCheck, Play, Sparkles, CheckCircle2 } from 'lucide-reac
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('real-csv-forecast');
+  const didNavigate = useRef(false);
+  useEffect(() => {
+    if (!didNavigate.current) { didNavigate.current = true; return; }
+    document.getElementById('workbench-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [currentTab]);
   const [selectedDomain, setSelectedDomain] = useState<DomainCode>('BD-ELEC-H');
 
   const [selectedScenario, setSelectedScenario] = useState<ForecastScenario>(
